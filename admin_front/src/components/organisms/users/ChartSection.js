@@ -13,8 +13,6 @@ const getStatusColor = (status) => {
       return "#34D399";
     case "拒否":
       return "#EF4444";
-    case "学生認証":
-      return "#8B5CF6";
     default:
       return "#000000";
   }

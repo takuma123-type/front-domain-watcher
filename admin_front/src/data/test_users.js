@@ -13,7 +13,7 @@ const users = [
     lastName: "花子",
     attribute: "学生",
     email: "hanako.sato@example.com",
-    status: "学生認証",
+    status: "",
   },
   {
     id: 3,
@@ -37,7 +37,7 @@ const users = [
     lastName: "三郎",
     attribute: "学生",
     email: "saburo.tanaka@example.com",
-    status: "学生認証",
+    status: "",
   },
   {
     id: 6,
@@ -69,7 +69,7 @@ const users = [
     lastName: "七郎",
     attribute: "学生",
     email: "shichiro.kobayashi@example.com",
-    status: "学生認証",
+    status: "",
   },
   {
     id: 10,
@@ -85,7 +85,7 @@ const users = [
     lastName: "九郎",
     attribute: "学生",
     email: "kuro.yamamoto@example.com",
-    status: "学生認証",
+    status: "",
   },
   {
     id: 12,

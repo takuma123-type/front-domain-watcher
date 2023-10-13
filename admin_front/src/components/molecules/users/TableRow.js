@@ -10,8 +10,6 @@ const getStatusStyle = (status) => {
       return "text-green-500 bg-green-500 bg-opacity-10";
     case "拒否":
       return "text-red-500 bg-red-500 bg-opacity-10";
-    case "学生認証":
-      return "text-purple-500 bg-purple-500 bg-opacity-10";
     default:
       return "";
   }
