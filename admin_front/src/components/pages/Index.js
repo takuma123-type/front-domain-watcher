@@ -65,7 +65,101 @@ export default function Users() {
             <div className="py-5 bg-neutral-50 border border-neutral-100 rounded-xl">
               <div className="px-6">
                 <h3 className="font-heading pb-8 text-lg text-neutral-600 font-semibold">
-                  ユーザ一覧
+                  ユーザ-一覧
+                  <input
+                    className="pl-2 py-3 text-sm text-gray-200 border ml-2.5"
+                    type="text"
+                    placeholder="ユーザ検索"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </h3>
+                <div className="mb-5 w-full overflow-x-auto">
+                  <table className="w-full min-w-max">
+                    <thead>
+                      <tr className="text-left">
+                        <TableHeader label="Id" />
+                        <TableHeader label="性" />
+                        <TableHeader label="名" />
+                        <TableHeader label="属性" />
+                        <TableHeader label="メールアドレス" />
+                        <TableHeader label="本人確認" />
+                        <th className="pb-3.5 border-b border-neutral-100" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentUsers.map((user) => (
+                        <TableRow
+                          key={user.id}
+                          {...user}
+                          onCellClick={() => handleCellClick(user.id)}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="py-4 overflow-hidden">
+          <div className="container px-4 mx-auto">
+            <div className="py-5 bg-neutral-50 border border-neutral-100 rounded-xl">
+              <div className="px-6">
+                <h3 className="font-heading pb-8 text-lg text-neutral-600 font-semibold">
+                  求職者一覧
+                  <input
+                    className="pl-2 py-3 text-sm text-gray-200 border ml-2.5"
+                    type="text"
+                    placeholder="ユーザ検索"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </h3>
+                <div className="mb-5 w-full overflow-x-auto">
+                  <table className="w-full min-w-max">
+                    <thead>
+                      <tr className="text-left">
+                        <TableHeader label="Id" />
+                        <TableHeader label="性" />
+                        <TableHeader label="名" />
+                        <TableHeader label="属性" />
+                        <TableHeader label="メールアドレス" />
+                        <TableHeader label="本人確認" />
+                        <th className="pb-3.5 border-b border-neutral-100" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentUsers.map((user) => (
+                        <TableRow
+                          key={user.id}
+                          {...user}
+                          onCellClick={() => handleCellClick(user.id)}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="py-4 overflow-hidden">
+          <div className="container px-4 mx-auto">
+            <div className="py-5 bg-neutral-50 border border-neutral-100 rounded-xl">
+              <div className="px-6">
+                <h3 className="font-heading pb-8 text-lg text-neutral-600 font-semibold">
+                  OG一覧
                   <input
                     className="pl-2 py-3 text-sm text-gray-200 border ml-2.5"
                     type="text"
