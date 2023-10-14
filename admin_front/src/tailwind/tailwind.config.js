@@ -2,9 +2,9 @@ module.exports = {
   content: [
     "./src/pug/*.pug",
     "./src/html/*.html",
-    "./src/pages/*.js",
+    "./src/pages/*.tsx",
     "./public/*.html",
-    "./src/components/**/*.js",
+    "./src/components/**/*.tsx",
   ],
 
   theme: {
