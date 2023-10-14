@@ -5,6 +5,6 @@ services:
     build: .
     volumes:
       - ./:/usr/src/app
-    command: sh -c 'cd admin_front && yarn start'
+    command: sh -c 'cd admin_front && PORT=8000 yarn start'
     ports:
-      - "3000:3000"
+      - "8000:8000"
