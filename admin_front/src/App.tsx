@@ -10,10 +10,8 @@ import IndustriesCreate from "./components/pages/IndustriesCreate";
 import OccupationCreate from "./components/pages/OccupationsCreate";
 import ThemesCreate from "./components/pages/ThemesCreate";
 import UserDetails from "./components/pages/UserDetails";
-import SignUp from "./components/pages/SignUp";
+import SignIn from "./components/pages/SignIn";
 import AdminUsers from "./components/pages/AdminUsers";
-import Company from "./components/pages/Companies";
-import CompaniesDetails from "./components/pages/CompaniesDetails";
 
 function App(): JSX.Element {
   return (
@@ -28,11 +26,9 @@ function App(): JSX.Element {
       <Route path="/event" element={<EventPage />} />
       <Route path="/event/new" element={<EventCreate />} />
       <Route path="/users/details" element={<UserDetails />} />
-      <Route path="/signup" element={<SignUp />} />
+      <Route path="/signin" element={<SignIn />} />
       <Route path="/admin_users" element={<AdminUsers />} />
-      <Route path="/companies" element={<Company />} />
       <Route path="/users/details/:id" element={<UserDetails />} />
-      <Route path="/companies/details/:id" element={<CompaniesDetails />} />
     </Routes>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent } from "react";
 
-interface Props {
+interface EditModalProps {
   isVisible: boolean;
   onCancel: () => void;
   onConfirm: (value: string) => void;
@@ -8,7 +8,7 @@ interface Props {
   editTarget: string;
 }
 
-const EditModal: React.FC<Props> = ({
+const EditModal: React.FC<EditModalProps> = ({
   isVisible,
   onCancel,
   onConfirm,

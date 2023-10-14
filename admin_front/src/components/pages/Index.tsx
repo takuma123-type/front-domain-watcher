@@ -6,8 +6,6 @@ import Pagination from "../organisms/shared/Pagination";
 import TableHeader from "../molecules/users/TableHeader";
 import TableRow, { User } from "../molecules/users/TableRow";
 import users from "../../data/test_users";
-import ChartSection from "../organisms/users/ChartSection";
-import LegendSection from "../organisms/users/LegendSection";
 
 const meta = {
   title: "",
@@ -66,7 +64,7 @@ export default function Users() {
             <div className="py-5 bg-neutral-50 border border-neutral-100 rounded-xl">
               <div className="px-6">
                 <h3 className="font-heading pb-8 text-lg text-neutral-600 font-semibold">
-                  ユーザ-一覧
+                  ユーザ一覧
                   <input
                     className="pl-2 py-3 text-sm text-gray-200 border ml-2.5"
                     type="text"
@@ -199,17 +197,6 @@ export default function Users() {
                   onPageChange={handlePageChange}
                 />
               </div>
-            </div>
-          </div>
-        </section>
-        <section className="py-8">
-          <div className="container text-center px-4 mx-auto">
-            <div className="mx-auto pt-5 pb-16 px-6 bg-white rounded d-flex justify-content-center">
-              <h3 className="text-xl font-bold mb-12">
-                ユーザ一覧の属性別割合
-              </h3>
-              <ChartSection />
-              <LegendSection />
             </div>
           </div>
         </section>
