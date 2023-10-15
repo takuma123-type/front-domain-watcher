@@ -34,6 +34,18 @@ export default function Users() {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [currentUsers, setCurrentUsers] = useState<User[]>([]);
 
+  const [filteredOGUsers, setFilteredOGUsers] = useState<User[]>([]);
+  const [totalOGPages, setTotalOGPages] = useState<number>(0);
+  const [currentOGUsers, setCurrentOGUsers] = useState<User[]>([]);
+
+  const [filteredJobSeekerUsers, setFilteredJobSeekerUsers] = useState<User[]>(
+    []
+  );
+  const [totalJobSeekerPages, setTotalJobSeekerPages] = useState<number>(0);
+  const [currentJobSeekerUsers, setCurrentJobSeekerUsers] = useState<User[]>(
+    []
+  );
+
   useEffect(() => {
     const filtered = users.filter((user) =>
       (
@@ -47,10 +59,38 @@ export default function Users() {
   }, [searchQuery, itemsPerPage]);
 
   useEffect(() => {
+    const filteredOG = filteredUsers.filter((user) => user.attribute === "OG");
+    setFilteredOGUsers(filteredOG);
+    setTotalOGPages(Math.ceil(filteredOG.length / itemsPerPage));
+  }, [filteredUsers, itemsPerPage]);
+
+  useEffect(() => {
+    const filteredJobSeeker = filteredUsers.filter(
+      (user) => user.attribute === "求職者"
+    );
+    setFilteredJobSeekerUsers(filteredJobSeeker);
+    setTotalJobSeekerPages(Math.ceil(filteredJobSeeker.length / itemsPerPage));
+  }, [filteredUsers, itemsPerPage]);
+
+  useEffect(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     setCurrentUsers(filteredUsers.slice(startIndex, endIndex));
   }, [currentPage, itemsPerPage, filteredUsers]);
+
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    setCurrentOGUsers(filteredOGUsers.slice(startIndex, endIndex));
+  }, [currentPage, itemsPerPage, filteredOGUsers]);
+
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    setCurrentJobSeekerUsers(
+      filteredJobSeekerUsers.slice(startIndex, endIndex)
+    );
+  }, [currentPage, itemsPerPage, filteredJobSeekerUsers]);
 
   return (
     <React.Fragment>
@@ -127,18 +167,21 @@ export default function Users() {
                         <TableHeader label="Id" />
                         <TableHeader label="性" />
                         <TableHeader label="名" />
-                        <TableHeader label="属性" />
                         <TableHeader label="メールアドレス" />
-                        <TableHeader label="本人確認" />
                         <th className="pb-3.5 border-b border-neutral-100" />
                       </tr>
                     </thead>
                     <tbody>
-                      {currentUsers.map((user) => (
+                      {currentJobSeekerUsers.map((user) => (
                         <TableRow
                           key={user.id}
-                          {...user}
+                          id={user.id}
+                          firstName={user.firstName}
+                          lastName={user.lastName}
+                          email={user.email}
                           onCellClick={() => handleCellClick(user.id)}
+                          attribute={""}
+                          status={""}
                         />
                       ))}
                     </tbody>
@@ -146,7 +189,7 @@ export default function Users() {
                 </div>
                 <Pagination
                   currentPage={currentPage}
-                  totalPages={totalPages}
+                  totalPages={totalJobSeekerPages}
                   onPageChange={handlePageChange}
                 />
               </div>
@@ -174,18 +217,21 @@ export default function Users() {
                         <TableHeader label="Id" />
                         <TableHeader label="性" />
                         <TableHeader label="名" />
-                        <TableHeader label="属性" />
                         <TableHeader label="メールアドレス" />
-                        <TableHeader label="本人確認" />
                         <th className="pb-3.5 border-b border-neutral-100" />
                       </tr>
                     </thead>
                     <tbody>
-                      {currentUsers.map((user) => (
+                      {currentOGUsers.map((user) => (
                         <TableRow
                           key={user.id}
-                          {...user}
+                          id={user.id}
+                          firstName={user.firstName}
+                          lastName={user.lastName}
+                          email={user.email}
                           onCellClick={() => handleCellClick(user.id)}
+                          attribute={""}
+                          status={""}
                         />
                       ))}
                     </tbody>
@@ -193,7 +239,7 @@ export default function Users() {
                 </div>
                 <Pagination
                   currentPage={currentPage}
-                  totalPages={totalPages}
+                  totalPages={totalOGPages}
                   onPageChange={handlePageChange}
                 />
               </div>
