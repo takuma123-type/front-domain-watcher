@@ -22,6 +22,7 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
 
   const handleModalConfirm = () => {
     setIsModalVisible(false);
+    console.log(`Delete ${industry.name}`);
   };
 
   const handleEditClick = () => {
@@ -35,11 +36,7 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
   const handleEditModalConfirm = (value: string) => {
     setEditValue(value);
     setIsEditModalVisible(false);
-  };
-
-  const handleDeleteModalConfirm = () => {
-    setIsModalVisible(false);
-    console.log(`Delete ${industry.name}`);
+    console.log(`Edit ${industry.name} to ${value}`);
   };
 
   return (
@@ -76,10 +73,10 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
       {isModalVisible && (
         <DeleteModal
           onCancel={handleModalCancel}
-          onConfirm={handleDeleteModalConfirm}
+          onConfirm={handleModalConfirm}
           initialValue={editValue}
           deleteTarget={`${industry.name}`}
-          isVisible={false}
+          isVisible={isModalVisible}
         />
       )}
       <EditModal

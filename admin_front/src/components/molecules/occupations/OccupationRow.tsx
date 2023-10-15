@@ -84,7 +84,7 @@ const OccupationRow: React.FC<OccupationRowProps> = ({ occupation }) => {
           onConfirm={handleDeleteModalConfirm}
           initialValue={editValue}
           deleteTarget={`${occupation.name}`}
-          isVisible={false}
+          isVisible={isModalVisible}
         />
       )}
       <EditModal

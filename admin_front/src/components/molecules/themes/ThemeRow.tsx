@@ -37,6 +37,11 @@ const ThemeRow = ({ theme }: Props) => {
     setIsEditModalVisible(false);
   };
 
+  const handleDeleteModalConfirm = (): void => {
+    setIsModalVisible(false);
+    console.log(`Delete ${theme.name}`);
+  };
+
   const handleEditModalConfirm = (value: string) => {
     setEditValue(value);
     setIsEditModalVisible(false);
@@ -72,10 +77,10 @@ const ThemeRow = ({ theme }: Props) => {
       {isModalVisible && (
         <DeleteModal
           onCancel={handleModalCancel}
-          onConfirm={handleModalConfirm}
+          onConfirm={handleDeleteModalConfirm}
           initialValue={editValue}
           deleteTarget={`${theme.name}`}
-          isVisible={false}
+          isVisible={isModalVisible}
         />
       )}
       <EditModal

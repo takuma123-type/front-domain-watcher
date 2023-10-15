@@ -26,7 +26,7 @@ function App(): JSX.Element {
       <Route path="/event" element={<EventPage />} />
       <Route path="/event/new" element={<EventCreate />} />
       <Route path="/users/details" element={<UserDetails />} />
-      <Route path="/signin" element={<SignIn />} />
+      <Route path="/sign_in" element={<SignIn />} />
       <Route path="/admin_users" element={<AdminUsers />} />
       <Route path="/users/details/:id" element={<UserDetails />} />
     </Routes>

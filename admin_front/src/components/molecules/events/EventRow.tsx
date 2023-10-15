@@ -71,7 +71,7 @@ const EventRow = ({ event }: Props) => {
           onConfirm={handleModalConfirm}
           initialValue={editValue}
           deleteTarget={`${event.title}`}
-          isVisible={false}
+          isVisible={isModalVisible}
         />
       )}
       <EditModal
