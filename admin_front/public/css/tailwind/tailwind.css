@@ -823,6 +823,10 @@ video {
   flex: 1 1 0%;
 }
 
+.table-auto {
+  table-layout: auto;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -965,19 +969,9 @@ video {
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
 
-.bg-gray-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(107 114 128 / var(--tw-bg-opacity));
-}
-
 .bg-gray-800 {
   --tw-bg-opacity: 1;
   background-color: rgb(31 41 55 / var(--tw-bg-opacity));
-}
-
-.bg-green-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(32 195 58 / var(--tw-bg-opacity));
 }
 
 .bg-neutral-50 {
@@ -1257,9 +1251,9 @@ video {
   color: rgb(107 114 128 / var(--tw-text-opacity));
 }
 
-.text-green-500 {
+.text-gray-900 {
   --tw-text-opacity: 1;
-  color: rgb(32 195 58 / var(--tw-text-opacity));
+  color: rgb(17 24 39 / var(--tw-text-opacity));
 }
 
 .text-neutral-400 {
@@ -1383,6 +1377,11 @@ input[type="radio"]:checked + div > div > div {
 .hover\:bg-blue-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(29 78 216 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-gray-100:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
 }
 
 .hover\:bg-gray-50:hover {

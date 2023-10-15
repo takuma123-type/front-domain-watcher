@@ -4,8 +4,16 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
 import Pagination from "../organisms/shared/Pagination";
 import TableHeader from "../molecules/users/TableHeader";
-import TableRow, { User } from "../molecules/users/TableRow";
+import TableRow from "../molecules/users/TableRow";
 import users from "../../data/test_users";
+
+interface User {
+  attribute: string;
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
 
 const meta = {
   title: "",
@@ -114,7 +122,7 @@ export default function Users() {
                   />
                 </h3>
                 <div className="mb-5 w-full overflow-x-auto">
-                  <table className="w-full min-w-max">
+                  <table className="w-full min-w-max table-auto">
                     <thead>
                       <tr className="text-left">
                         <TableHeader label="Id" />
@@ -122,13 +130,13 @@ export default function Users() {
                         <TableHeader label="名" />
                         <TableHeader label="属性" />
                         <TableHeader label="メールアドレス" />
-                        <TableHeader label="本人確認" />
                         <th className="pb-3.5 border-b border-neutral-100" />
                       </tr>
                     </thead>
                     <tbody>
                       {currentUsers.map((user) => (
                         <TableRow
+                          status={""}
                           key={user.id}
                           {...user}
                           onCellClick={() => handleCellClick(user.id)}
@@ -161,12 +169,13 @@ export default function Users() {
                   />
                 </h3>
                 <div className="mb-5 w-full overflow-x-auto">
-                  <table className="w-full min-w-max">
+                  <table className="w-full min-w-max table-auto">
                     <thead>
                       <tr className="text-left">
                         <TableHeader label="Id" />
                         <TableHeader label="性" />
                         <TableHeader label="名" />
+                        <TableHeader label="属性" />
                         <TableHeader label="メールアドレス" />
                         <th className="pb-3.5 border-b border-neutral-100" />
                       </tr>
@@ -178,9 +187,9 @@ export default function Users() {
                           id={user.id}
                           firstName={user.firstName}
                           lastName={user.lastName}
+                          attribute={user.attribute}
                           email={user.email}
                           onCellClick={() => handleCellClick(user.id)}
-                          attribute={""}
                           status={""}
                         />
                       ))}
@@ -211,12 +220,13 @@ export default function Users() {
                   />
                 </h3>
                 <div className="mb-5 w-full overflow-x-auto">
-                  <table className="w-full min-w-max">
+                  <table className="w-full min-w-max table-auto">
                     <thead>
                       <tr className="text-left">
                         <TableHeader label="Id" />
                         <TableHeader label="性" />
                         <TableHeader label="名" />
+                        <TableHeader label="属性" />
                         <TableHeader label="メールアドレス" />
                         <th className="pb-3.5 border-b border-neutral-100" />
                       </tr>
@@ -228,9 +238,9 @@ export default function Users() {
                           id={user.id}
                           firstName={user.firstName}
                           lastName={user.lastName}
+                          attribute={user.attribute}
                           email={user.email}
                           onCellClick={() => handleCellClick(user.id)}
-                          attribute={""}
                           status={""}
                         />
                       ))}
