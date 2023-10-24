@@ -5,7 +5,8 @@ import Header from "../molecules/shared/Header";
 import Pagination from "../organisms/shared/Pagination";
 import TableHeader from "../molecules/users/TableHeader";
 import TableRow from "../molecules/users/TableRow";
-import users from "../../data/test_users";
+// import useUserRepository from "../../infrastructure/repositories/UsersRepository";
+import { Storage } from "../../infrastructure/Storage";
 
 interface User {
   attribute: string;
@@ -25,13 +26,15 @@ const meta = {
 
 export default function Users() {
   const navigate = useNavigate();
+  const sessionToken = Storage.restoreSessionToken();
+  // const userRepository = useUserRepository(sessionToken);
+
   const handleCellClick = (userId: number) => {
     navigate(`/users/details/${userId}`);
   };
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -53,52 +56,40 @@ export default function Users() {
   const [currentJobSeekerUsers, setCurrentJobSeekerUsers] = useState<User[]>(
     []
   );
+  const [users, setUsers] = useState<any[]>([]); // ユーザーデータの状態を管理
+  const [loading, setLoading] = useState<boolean>(true); // データロード中のフラグ
+  const [error, setError] = useState<string | null>(null);
+
+  // useEffect(() => {
+  //   userRepository.fetchUsers();
+  // }, []);
 
   useEffect(() => {
-    const filtered = users.filter((user) =>
-      (
-        user.firstName.toLowerCase() +
-        " " +
-        user.lastName.toLowerCase()
-      ).includes(searchQuery.toLowerCase())
-    );
-    setFilteredUsers(filtered);
-    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
-  }, [searchQuery, itemsPerPage]);
+    // データ取得関数
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/admin/users");
+        if (!response.ok) {
+          const errorData = await response.json(); // Try to parse error response
+          throw new Error(errorData.message || "Failed to fetch data.");
+        }
+        const data = await response.json();
+        setUsers(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  useEffect(() => {
-    const filteredOG = filteredUsers.filter((user) => user.attribute === "OG");
-    setFilteredOGUsers(filteredOG);
-    setTotalOGPages(Math.ceil(filteredOG.length / itemsPerPage));
-  }, [filteredUsers, itemsPerPage]);
-
-  useEffect(() => {
-    const filteredJobSeeker = filteredUsers.filter(
-      (user) => user.attribute === "求職者"
-    );
-    setFilteredJobSeekerUsers(filteredJobSeeker);
-    setTotalJobSeekerPages(Math.ceil(filteredJobSeeker.length / itemsPerPage));
-  }, [filteredUsers, itemsPerPage]);
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     setCurrentUsers(filteredUsers.slice(startIndex, endIndex));
   }, [currentPage, itemsPerPage, filteredUsers]);
-
-  useEffect(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setCurrentOGUsers(filteredOGUsers.slice(startIndex, endIndex));
-  }, [currentPage, itemsPerPage, filteredOGUsers]);
-
-  useEffect(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setCurrentJobSeekerUsers(
-      filteredJobSeekerUsers.slice(startIndex, endIndex)
-    );
-  }, [currentPage, itemsPerPage, filteredJobSeekerUsers]);
 
   return (
     <React.Fragment>
