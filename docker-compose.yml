@@ -3,6 +3,7 @@ version: "3"
 services:
   node:
     build: .
+    env_file: ./app.env
     volumes:
       - ./:/usr/src/app
     command: sh -c 'cd admin_front && PORT=8000 yarn start'
