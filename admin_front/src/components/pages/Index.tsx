@@ -74,6 +74,15 @@ export default function Users() {
             email: user.email,
           }))
         );
+        setFilteredUsers(
+          response.data.results.map((user: any) => ({
+            id: user.id,
+            firstName: user.name.split(" ")[0],
+            lastName: user.name.split(" ")[1] || "",
+            attribute: user.status,
+            email: user.email,
+          }))
+        );
         console.log(response.data.results);
       } catch (err) {
         console.error(err);
