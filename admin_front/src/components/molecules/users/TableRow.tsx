@@ -6,7 +6,7 @@ export interface User {
   lastName: string;
   attribute: string;
   email: string;
-  status: string;
+  status?: string;
   verified?: boolean;
 }
 
