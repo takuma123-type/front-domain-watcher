@@ -6,6 +6,7 @@ import Pagination from "../organisms/shared/Pagination";
 import TableHeader from "../molecules/users/TableHeader";
 import TableRow from "../molecules/users/TableRow";
 import { Storage } from "../../infrastructure/Storage";
+import { API } from "../../infrastructure/API";
 import axios from "axios";
 
 interface User {
@@ -43,47 +44,22 @@ export default function Users() {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [currentUsers, setCurrentUsers] = useState<User[]>([]);
 
-  const [filteredOGUsers, setFilteredOGUsers] = useState<User[]>([]);
-  const [totalOGPages, setTotalOGPages] = useState<number>(0);
-  const [currentOGUsers, setCurrentOGUsers] = useState<User[]>([]);
-
-  const [filteredJobSeekerUsers, setFilteredJobSeekerUsers] = useState<User[]>(
-    []
-  );
-  const [totalJobSeekerPages, setTotalJobSeekerPages] = useState<number>(0);
-  const [currentJobSeekerUsers, setCurrentJobSeekerUsers] = useState<User[]>(
-    []
-  );
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/admin/users", {
-          headers: {
-            Accept: "application/json",
-          },
-        });
-        setUsers(
-          response.data.results.map((user: any) => ({
-            id: user.id,
-            firstName: user.name.split(" ")[0],
-            lastName: user.name.split(" ")[1] || "",
-            attribute: user.status,
-            email: user.email,
-          }))
-        );
-        setFilteredUsers(
-          response.data.results.map((user: any) => ({
-            id: user.id,
-            firstName: user.name.split(" ")[0],
-            lastName: user.name.split(" ")[1] || "",
-            attribute: user.status,
-            email: user.email,
-          }))
-        );
-        console.log(response.data.results);
+        const usersData = await API.fetchUsers();
+        const usersList = usersData.map((user: any) => ({
+          id: user.id,
+          firstName: user.name.split(" ")[0],
+          lastName: user.name.split(" ")[1] || "",
+          attribute: user.status,
+          email: user.email,
+        }));
+        setUsers(usersList);
+        setFilteredUsers(usersList);
       } catch (err) {
         console.error(err);
       } finally {
