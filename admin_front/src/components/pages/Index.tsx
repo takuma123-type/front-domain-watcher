@@ -68,9 +68,7 @@ export default function Users() {
 
   useEffect(() => {
     const filteredData = users.filter((user) =>
-      `${user.firstName} ${user.lastName}`
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+      `${user.name}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredUsers(filteredData);
     setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
