@@ -44,12 +44,12 @@ export default function Users() {
     const usersRepository = new UsersRepository();
     const fetchUsers = async () => {
       try {
-        const usersData = await FetchUsersUsecase.fetch(
+        const usersCell = await FetchUsersUsecase.fetch(
           usersRepository,
           sessionToken
         );
-        setUsers(usersData);
-        setFilteredUsers(usersData);
+        setUsers(usersCell);
+        setFilteredUsers(usersCell);
       } catch (err) {
         console.error(err);
         setError("データの取得に失敗しました。");

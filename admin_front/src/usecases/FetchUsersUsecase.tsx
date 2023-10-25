@@ -7,8 +7,8 @@ export class FetchUsersUsecase {
     sessionToken: string
   ): Promise<UserItem[]> {
     try {
-      const usersData = await usersRepository.fetch(sessionToken);
-      const formattedUsers = usersData.map((user: any) => new UserItem(user));
+      const usersCell = await usersRepository.fetch(sessionToken);
+      const formattedUsers = usersCell.map((user: any) => new UserItem(user));
       return formattedUsers;
     } catch (err) {
       console.error(err);
