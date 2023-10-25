@@ -7,7 +7,7 @@ export class UsersRepository {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "X-SOEUR-BO-API-Key": "hogehoge",
+        "X-SOEUR-ADMIN-API-Key": "hogehoge",
         Authorization: `Bearer ${sessionToken}`,
       },
     }).then((response) => {
@@ -26,7 +26,7 @@ export class UsersRepository {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "X-SOEUR-BO-API-Key": "hogehoge",
+        "X-SOEUR-ADMIN-API-Key": "hogehoge",
         Authorization: `Bearer ${params.sessionToken}`,
       },
     }).then((response) => {
