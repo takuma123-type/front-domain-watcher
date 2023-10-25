@@ -8,7 +8,7 @@ export class API {
       `${this.BASE_PATH}/users/${params.userId}`,
   };
 
-  private static createURL(url: string): string {
+  public static createURL(url: string): string {
     return `${process.env.REACT_APP_API_BASE_URL}${url}`;
   }
 
