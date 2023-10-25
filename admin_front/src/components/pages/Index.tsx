@@ -101,7 +101,8 @@ export default function Users() {
                     <thead>
                       <tr className="text-left">
                         <TableHeader label="Id" />
-                        <TableHeader label="名前" />
+                        <TableHeader label="ユーザコード" />
+                        <TableHeader label="性 / 名" />
                         <TableHeader label="属性" />
                         <TableHeader label="メールアドレス" />
                         <th className="pb-3.5 border-b border-neutral-100" />
