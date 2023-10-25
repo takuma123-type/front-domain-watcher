@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
@@ -6,16 +6,9 @@ import Pagination from "../organisms/shared/Pagination";
 import TableHeader from "../molecules/users/TableHeader";
 import TableRow from "../molecules/users/TableRow";
 import { Storage } from "../../infrastructure/Storage";
-import { API } from "../../infrastructure/API";
-import axios from "axios";
-
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  attribute: string;
-  email: string;
-}
+import { UsersRepository } from "../../infrastructure/repositories/UsersRepository";
+import { FetchUsersUsecase } from "../../usecases/FetchUsersUsecase";
+import { UserItem } from "../../models/presentation/UserItem";
 
 const meta = {
   title: "",
@@ -27,7 +20,7 @@ const meta = {
 
 export default function Users() {
   const navigate = useNavigate();
-  const sessionToken = Storage.restoreSessionToken();
+  const sessionToken: string | undefined = Storage.restoreSessionToken();
   const handleCellClick = (userId: number) => {
     navigate(`/users/details/${userId}`);
   };
@@ -40,41 +33,49 @@ export default function Users() {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserItem[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [currentUsers, setCurrentUsers] = useState<User[]>([]);
+  const [currentUsers, setCurrentUsers] = useState<UserItem[]>([]);
 
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    const fetchData = async () => {
+    const usersRepository = new UsersRepository();
+    const fetchUsers = async () => {
       try {
-        const usersData = await API.fetchUsers();
-        const usersList = usersData.map((user: any) => ({
-          id: user.id,
-          firstName: user.name.split(" ")[0],
-          lastName: user.name.split(" ")[1] || "",
-          attribute: user.status,
-          email: user.email,
-        }));
-        setUsers(usersList);
-        setFilteredUsers(usersList);
+        const usersData = await FetchUsersUsecase.fetch(
+          usersRepository,
+          sessionToken
+        );
+        setUsers(usersData);
+        setFilteredUsers(usersData);
       } catch (err) {
         console.error(err);
+        setError("データの取得に失敗しました。");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchData();
-  }, []);
+    fetchUsers();
+  }, [sessionToken]);
 
   useEffect(() => {
     const offset = (currentPage - 1) * itemsPerPage;
     const currentData = filteredUsers.slice(offset, offset + itemsPerPage);
     setCurrentUsers(currentData);
   }, [filteredUsers, currentPage, itemsPerPage]);
+
+  useEffect(() => {
+    const filteredData = users.filter((user) =>
+      `${user.firstName} ${user.lastName}`
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    );
+    setFilteredUsers(filteredData);
+    setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
+    setCurrentPage(1);
+  }, [users, searchQuery, itemsPerPage]);
 
   return (
     <React.Fragment>
@@ -102,8 +103,7 @@ export default function Users() {
                     <thead>
                       <tr className="text-left">
                         <TableHeader label="Id" />
-                        <TableHeader label="性" />
-                        <TableHeader label="名" />
+                        <TableHeader label="名前" />
                         <TableHeader label="属性" />
                         <TableHeader label="メールアドレス" />
                         <th className="pb-3.5 border-b border-neutral-100" />
@@ -112,7 +112,6 @@ export default function Users() {
                     <tbody>
                       {currentUsers.map((user) => (
                         <TableRow
-                          status={""}
                           key={user.id}
                           {...user}
                           onCellClick={() => handleCellClick(user.id)}

@@ -1,28 +1,18 @@
 export class UserItem {
-  readonly firstName: string;
-  readonly lastName: string;
-  readonly code: string;
-  readonly authenticationId: number;
-  readonly finalEducation: string;
-  readonly selfIntroduction: string;
+  readonly id: number;
+  readonly name: string;
+  readonly status: string;
+  readonly email: string;
 
   constructor(params: {
-    firstName: string;
-    lastName: string;
-    code: string;
-    authenticationId: number;
-    finalEducation: string;
-    selfIntroduction: string;
+    id: number;
+    name: string;
+    status: string;
+    email: string;
   }) {
-    this.firstName = params.firstName;
-    this.lastName = params.lastName;
-    this.code = params.code;
-    this.authenticationId = params.authenticationId;
-    this.finalEducation = params.finalEducation;
-    this.selfIntroduction = params.selfIntroduction;
-  }
-
-  public get fullname(): string {
-    return `${this.firstName} ${this.lastName}`;
+    this.id = params.id;
+    this.name = params.name;
+    this.status = params.status;
+    this.email = params.email;
   }
 }
