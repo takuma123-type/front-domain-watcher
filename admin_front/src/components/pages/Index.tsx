@@ -20,7 +20,7 @@ const meta = {
 
 export default function Users() {
   const navigate = useNavigate();
-  const sessionToken: string | undefined = Storage.restoreSessionToken();
+  const sessionToken: string = Storage.restoreSessionToken() || "";
   const handleCellClick = (userId: number) => {
     navigate(`/users/details/${userId}`);
   };
