@@ -67,11 +67,11 @@ export default function Users() {
   }, [filteredUsers, currentPage, itemsPerPage]);
 
   useEffect(() => {
-    const filteredData = users.filter((user) =>
+    const filteredCell = users.filter((user) =>
       `${user.name}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    setFilteredUsers(filteredData);
-    setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
+    setFilteredUsers(filteredCell);
+    setTotalPages(Math.ceil(filteredCell.length / itemsPerPage));
     setCurrentPage(1);
   }, [users, searchQuery, itemsPerPage]);
 
