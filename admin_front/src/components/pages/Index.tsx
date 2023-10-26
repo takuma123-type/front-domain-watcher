@@ -62,8 +62,8 @@ export default function Users() {
 
   useEffect(() => {
     const offset = (currentPage - 1) * itemsPerPage;
-    const currentData = filteredUsers.slice(offset, offset + itemsPerPage);
-    setCurrentUsers(currentData);
+    const currentCell = filteredUsers.slice(offset, offset + itemsPerPage);
+    setCurrentUsers(currentCell);
   }, [filteredUsers, currentPage, itemsPerPage]);
 
   useEffect(() => {
