@@ -1,0 +1,10 @@
+# dependencies
+/node_modules
+/admin_front/node_modules
+
+# build output
+/build
+
+# IDE files
+.idea
+.vscode
