@@ -1,3 +1,4 @@
+// index.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
@@ -7,7 +8,10 @@ import TableHeader from "../molecules/users/TableHeader";
 import TableRow from "../molecules/users/TableRow";
 import { Storage } from "../../infrastructure/Storage";
 import { UsersRepository } from "../../infrastructure/repositories/UsersRepository";
-import { FetchUsersUsecase } from "../../usecases/FetchUsersUsecase";
+import {
+  FetchUsersUsecase,
+  FetchUsersOutput,
+} from "../../usecases/FetchUsersUsecase";
 import { UserItem } from "../../models/presentation/UserItem";
 
 const meta = {
@@ -20,16 +24,12 @@ const meta = {
 
 export default function Users() {
   const navigate = useNavigate();
-  const sessionToken: string = Storage.restoreSessionToken() || "";
   const handleCellClick = (userId: number) => {
     navigate(`/users/details/${userId}`);
   };
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
 
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -42,29 +42,20 @@ export default function Users() {
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const usersRepository = new UsersRepository();
+    const fetchUsersUsecase = new FetchUsersUsecase(usersRepository);
     const fetchUsers = async () => {
       try {
-        const usersCell = await FetchUsersUsecase.fetch(
-          usersRepository,
-          sessionToken
-        );
+        const output: FetchUsersOutput = await fetchUsersUsecase.fetch();
+        const usersCell = output.users;
         setUsers(usersCell);
-        setFilteredUsers(usersCell);
+        console.log("usersCell:", usersCell);
       } catch (err) {
         console.error(err);
         setError("データの取得に失敗しました。");
-      } finally {
-        setLoading(false);
       }
     };
     fetchUsers();
-  }, [sessionToken]);
-
-  useEffect(() => {
-    const offset = (currentPage - 1) * itemsPerPage;
-    const currentCell = filteredUsers.slice(offset, offset + itemsPerPage);
-    setCurrentUsers(currentCell);
-  }, [filteredUsers, currentPage, itemsPerPage]);
+  }, []);
 
   useEffect(() => {
     const filteredCell = users.filter((user) =>
@@ -74,6 +65,12 @@ export default function Users() {
     setTotalPages(Math.ceil(filteredCell.length / itemsPerPage));
     setCurrentPage(1);
   }, [users, searchQuery, itemsPerPage]);
+
+  useEffect(() => {
+    const offset = (currentPage - 1) * itemsPerPage;
+    const currentCell = filteredUsers.slice(offset, offset + itemsPerPage);
+    setCurrentUsers(currentCell);
+  }, [filteredUsers, currentPage, itemsPerPage]);
 
   return (
     <React.Fragment>
@@ -113,7 +110,9 @@ export default function Users() {
                         <TableRow
                           key={user.id}
                           {...user}
-                          onCellClick={() => handleCellClick(user.id)}
+                          onCellClick={(id, code, name, email) =>
+                            handleCellClick(id)
+                          }
                         />
                       ))}
                     </tbody>
@@ -122,7 +121,7 @@ export default function Users() {
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  onPageChange={handlePageChange}
+                  onPageChange={setCurrentPage}
                 />
               </div>
             </div>

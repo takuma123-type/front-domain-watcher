@@ -16,7 +16,7 @@ export class UsersRepository {
       console.log("API response:", response);
 
       if (response.status === 200) {
-        return response.data.results;
+        return response;
       }
 
       if (response.status === 401) {
