@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from "react";
+// index.tsx
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
 import Pagination from "../organisms/shared/Pagination";
 import TableHeader from "../molecules/users/TableHeader";
 import TableRow from "../molecules/users/TableRow";
-import users from "../../data/test_users";
-
-interface User {
-  attribute: string;
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
+import { Storage } from "../../infrastructure/Storage";
+import { UsersRepository } from "../../infrastructure/repositories/UsersRepository";
+import {
+  FetchUsersUsecase,
+  FetchUsersOutput,
+} from "../../usecases/FetchUsersUsecase";
+import { UserItem } from "../../models/presentation/UserItem";
 
 const meta = {
   title: "",
@@ -32,73 +31,46 @@ export default function Users() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserItem[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [currentUsers, setCurrentUsers] = useState<User[]>([]);
+  const [currentUsers, setCurrentUsers] = useState<UserItem[]>([]);
 
-  const [filteredOGUsers, setFilteredOGUsers] = useState<User[]>([]);
-  const [totalOGPages, setTotalOGPages] = useState<number>(0);
-  const [currentOGUsers, setCurrentOGUsers] = useState<User[]>([]);
-
-  const [filteredJobSeekerUsers, setFilteredJobSeekerUsers] = useState<User[]>(
-    []
-  );
-  const [totalJobSeekerPages, setTotalJobSeekerPages] = useState<number>(0);
-  const [currentJobSeekerUsers, setCurrentJobSeekerUsers] = useState<User[]>(
-    []
-  );
+  const [users, setUsers] = useState<UserItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const usersRepository = new UsersRepository();
+    const fetchUsersUsecase = new FetchUsersUsecase(usersRepository);
+    const fetchUsers = async () => {
+      try {
+        const output: FetchUsersOutput = await fetchUsersUsecase.fetch();
+        const usersCell = output.users;
+        setUsers(usersCell);
+        console.log("usersCell:", usersCell);
+      } catch (err) {
+        console.error(err);
+        setError("データの取得に失敗しました。");
+      }
+    };
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
-    const filtered = users.filter((user) =>
-      (
-        user.firstName.toLowerCase() +
-        " " +
-        user.lastName.toLowerCase()
-      ).includes(searchQuery.toLowerCase())
+    const filteredCell = users.filter((user) =>
+      `${user.name}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    setFilteredUsers(filtered);
-    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
-  }, [searchQuery, itemsPerPage]);
+    setFilteredUsers(filteredCell);
+    setTotalPages(Math.ceil(filteredCell.length / itemsPerPage));
+    setCurrentPage(1);
+  }, [users, searchQuery, itemsPerPage]);
 
   useEffect(() => {
-    const filteredOG = filteredUsers.filter((user) => user.attribute === "OG");
-    setFilteredOGUsers(filteredOG);
-    setTotalOGPages(Math.ceil(filteredOG.length / itemsPerPage));
-  }, [filteredUsers, itemsPerPage]);
-
-  useEffect(() => {
-    const filteredJobSeeker = filteredUsers.filter(
-      (user) => user.attribute === "求職者"
-    );
-    setFilteredJobSeekerUsers(filteredJobSeeker);
-    setTotalJobSeekerPages(Math.ceil(filteredJobSeeker.length / itemsPerPage));
-  }, [filteredUsers, itemsPerPage]);
-
-  useEffect(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setCurrentUsers(filteredUsers.slice(startIndex, endIndex));
-  }, [currentPage, itemsPerPage, filteredUsers]);
-
-  useEffect(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setCurrentOGUsers(filteredOGUsers.slice(startIndex, endIndex));
-  }, [currentPage, itemsPerPage, filteredOGUsers]);
-
-  useEffect(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setCurrentJobSeekerUsers(
-      filteredJobSeekerUsers.slice(startIndex, endIndex)
-    );
-  }, [currentPage, itemsPerPage, filteredJobSeekerUsers]);
+    const offset = (currentPage - 1) * itemsPerPage;
+    const currentCell = filteredUsers.slice(offset, offset + itemsPerPage);
+    setCurrentUsers(currentCell);
+  }, [filteredUsers, currentPage, itemsPerPage]);
 
   return (
     <React.Fragment>
@@ -126,8 +98,8 @@ export default function Users() {
                     <thead>
                       <tr className="text-left">
                         <TableHeader label="Id" />
-                        <TableHeader label="性" />
-                        <TableHeader label="名" />
+                        <TableHeader label="ユーザコード" />
+                        <TableHeader label="性 / 名" />
                         <TableHeader label="属性" />
                         <TableHeader label="メールアドレス" />
                         <th className="pb-3.5 border-b border-neutral-100" />
@@ -136,10 +108,11 @@ export default function Users() {
                     <tbody>
                       {currentUsers.map((user) => (
                         <TableRow
-                          status={""}
                           key={user.id}
                           {...user}
-                          onCellClick={() => handleCellClick(user.id)}
+                          onCellClick={(id, code, name, email) =>
+                            handleCellClick(id)
+                          }
                         />
                       ))}
                     </tbody>
@@ -148,109 +121,7 @@ export default function Users() {
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="py-4 overflow-hidden">
-          <div className="container px-4 mx-auto">
-            <div className="py-5 bg-neutral-50 border border-neutral-100 rounded-xl">
-              <div className="px-6">
-                <h3 className="font-heading pb-8 text-lg text-neutral-600 font-semibold">
-                  求職者一覧
-                  <input
-                    className="pl-2 py-3 text-sm text-gray-200 border ml-2.5"
-                    type="text"
-                    placeholder="ユーザ検索"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </h3>
-                <div className="mb-5 w-full overflow-x-auto">
-                  <table className="w-full min-w-max table-auto">
-                    <thead>
-                      <tr className="text-left">
-                        <TableHeader label="Id" />
-                        <TableHeader label="性" />
-                        <TableHeader label="名" />
-                        <TableHeader label="属性" />
-                        <TableHeader label="メールアドレス" />
-                        <th className="pb-3.5 border-b border-neutral-100" />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentJobSeekerUsers.map((user) => (
-                        <TableRow
-                          key={user.id}
-                          id={user.id}
-                          firstName={user.firstName}
-                          lastName={user.lastName}
-                          attribute={user.attribute}
-                          email={user.email}
-                          onCellClick={() => handleCellClick(user.id)}
-                          status={""}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalJobSeekerPages}
-                  onPageChange={handlePageChange}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="py-4 overflow-hidden">
-          <div className="container px-4 mx-auto">
-            <div className="py-5 bg-neutral-50 border border-neutral-100 rounded-xl">
-              <div className="px-6">
-                <h3 className="font-heading pb-8 text-lg text-neutral-600 font-semibold">
-                  OG一覧
-                  <input
-                    className="pl-2 py-3 text-sm text-gray-200 border ml-2.5"
-                    type="text"
-                    placeholder="ユーザ検索"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </h3>
-                <div className="mb-5 w-full overflow-x-auto">
-                  <table className="w-full min-w-max table-auto">
-                    <thead>
-                      <tr className="text-left">
-                        <TableHeader label="Id" />
-                        <TableHeader label="性" />
-                        <TableHeader label="名" />
-                        <TableHeader label="属性" />
-                        <TableHeader label="メールアドレス" />
-                        <th className="pb-3.5 border-b border-neutral-100" />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentOGUsers.map((user) => (
-                        <TableRow
-                          key={user.id}
-                          id={user.id}
-                          firstName={user.firstName}
-                          lastName={user.lastName}
-                          attribute={user.attribute}
-                          email={user.email}
-                          onCellClick={() => handleCellClick(user.id)}
-                          status={""}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalOGPages}
-                  onPageChange={handlePageChange}
+                  onPageChange={setCurrentPage}
                 />
               </div>
             </div>
