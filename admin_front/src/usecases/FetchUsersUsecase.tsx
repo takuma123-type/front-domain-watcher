@@ -11,7 +11,7 @@ export class FetchUsersOutput {
 
   constructor(users: UserItem[]) {
     this.users = users;
-    console.log("FetchUsersOutput constructor - users:", this.users);
+    // console.log("FetchUsersOutput constructor - users:", this.users);
   }
 }
 
@@ -27,7 +27,7 @@ export class FetchUsersUsecase {
 
     try {
       const response = await this.usersRepository.fetch(sessionToken);
-      console.log("Full Fetched Response:", JSON.stringify(response, null, 2));
+      // console.log("Full Fetched Response:", JSON.stringify(response, null, 2));
       const users = response.data.results.map(
         (user: any) =>
           new UserItem({

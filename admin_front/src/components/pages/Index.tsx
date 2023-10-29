@@ -48,7 +48,7 @@ export default function Users() {
         const output: FetchUsersOutput = await fetchUsersUsecase.fetch();
         const usersCell = output.users;
         setUsers(usersCell);
-        console.log("usersCell:", usersCell);
+        // console.log("usersCell:", usersCell);
       } catch (err) {
         console.error(err);
         setError("データの取得に失敗しました。");
