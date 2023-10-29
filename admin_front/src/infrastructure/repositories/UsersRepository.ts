@@ -43,7 +43,7 @@ export class UsersRepository {
           },
         }
       );
-      console.log("API response userId:", response);
+      // console.log("API response userId:", response);
 
       if (response.status === 200) {
         return response;
@@ -61,19 +61,19 @@ export class UsersRepository {
   }
 }
 
-async function getUserDetail(
-  userId: string,
-  sessionToken: string
-): Promise<void> {
-  const usersRepository = new UsersRepository();
-  try {
-    const response = await usersRepository.fetchUser(sessionToken, userId);
-    console.log("Full Fetched Response:", JSON.stringify(response, null, 2));
-  } catch (error) {
-    console.error(error);
-  }
-}
+// async function getUserDetail(
+//   userId: string,
+//   sessionToken: string
+// ): Promise<void> {
+//   const usersRepository = new UsersRepository();
+//   try {
+//     const response = await usersRepository.fetchUser(sessionToken, userId);
+//     console.log("Full Fetched Response:", JSON.stringify(response, null, 2));
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
 
-const userId = "7";
-const sessionToken = "your_session_token";
-getUserDetail(userId, sessionToken);
+// const userId = "7";
+// const sessionToken = "your_session_token";
+// getUserDetail(userId, sessionToken);
