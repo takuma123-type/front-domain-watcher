@@ -20,7 +20,7 @@ export default function Industries() {
   const [industries, setIndustries] = useState<IndustryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const industriesPerPage: number = 5;
+  const industriesPerPage: number = 10;
 
   const memoizedIndustries: IndustryItem[] = useMemo(() => {
     return industries.filter((industry) => industry.name.includes(searchQuery));
