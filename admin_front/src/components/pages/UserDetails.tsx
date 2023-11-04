@@ -1,26 +1,14 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
 import DetailsView from "../organisms/userdetails/DetailsView";
 import VerificationView from "../organisms/userdetails/VerificationView";
-import users from "../../data/test_users";
 import { useParams } from "react-router-dom";
+import { GetUserDetailUsecase } from "../../usecases/GetUserDetailUsecase";
+import { UsersRepository } from "../../infrastructure/repositories";
+import { UserDetailItem } from "../../models/presentation/UserDetailItem";
 
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-}
-
-interface Meta {
-  title: string;
-  meta: any[];
-  link: any[];
-  style: any[];
-  script: any[];
-}
-
-const meta: Meta = {
+const meta = {
   title: "ユーザ詳細情報",
   meta: [],
   link: [],
@@ -30,23 +18,23 @@ const meta: Meta = {
 
 export default function UserDetails() {
   const [isVerificationView, setIsVerificationView] = useState<boolean>(false);
+  const [userDetailOutput, setUserDetailOutput] =
+    useState<UserDetailItem | null>(null);
   const { id = "" } = useParams<{ id?: string }>();
 
-  const user: User | null = useMemo(() => {
-    const userId = parseInt(id, 10);
-    const foundUser = users.find((u) => u.id === userId);
-    return foundUser ? foundUser : null;
-  }, [id]);
-
   useEffect(() => {
-    const rootElement = document.getElementById("root");
-    if (rootElement) {
-      let classes = rootElement.classList;
-      if (classes && classes.length > 0) {
-        rootElement.classList.remove(...classes);
-      }
-    }
-  }, []);
+    const usersRepository = new UsersRepository();
+    const getUserDetailUsecase = new GetUserDetailUsecase(usersRepository);
+
+    getUserDetailUsecase
+      .fetch(id)
+      .then((output) => {
+        setUserDetailOutput(output.user);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [id]);
 
   const handleDetailsClick = () => {
     setIsVerificationView(false);
@@ -69,8 +57,8 @@ export default function UserDetails() {
               <div className="flex flex-wrap items-center justify-between mb-5 -m-2">
                 <div className="w-auto p-2">
                   <h3 className="font-heading text-lg font-semibold">
-                    {user
-                      ? `${user.firstName} ${user.lastName} 詳細情報`
+                    {userDetailOutput
+                      ? `${userDetailOutput.name} 詳細情報`
                       : "Loading..."}
                   </h3>
                 </div>
@@ -104,7 +92,7 @@ export default function UserDetails() {
               {isVerificationView ? (
                 <VerificationView />
               ) : (
-                <DetailsView user={user} />
+                <DetailsView user={userDetailOutput} />
               )}
             </div>
           </div>
