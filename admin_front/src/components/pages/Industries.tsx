@@ -2,15 +2,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
 import IndustryRow from "../molecules/industries/IndustryRow";
-import industriesData from "../../data/industries_test";
 import CreateButton from "../atoms/Buttons/CreateButton";
 import Pagination from "../organisms/shared/Pagination";
-
-interface Industry {
-  id: number;
-  name: string;
-  registeredUsers: number;
-}
+import { IndustriesRepository } from "../../infrastructure/repositories/IndustriesRepository";
+import { FetchIndustryUsecase } from "../../usecases/FetchIndustriesUsecase";
+import { IndustryItem } from "../../models/presentation/IndustryItem";
 
 const meta = {
   title: "",
@@ -21,24 +17,40 @@ const meta = {
 };
 
 export default function Industries() {
-  const [industries, setIndustries] = useState<Industry[]>(industriesData);
+  const [industries, setIndustries] = useState<IndustryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const industriesPerPage: number = 5;
 
-  const memoizedIndustries: Industry[] = useMemo(() => {
+  const memoizedIndustries: IndustryItem[] = useMemo(() => {
     return industries.filter((industry) => industry.name.includes(searchQuery));
   }, [industries, searchQuery]);
 
   const indexOfLastIndustry: number = currentPage * industriesPerPage;
   const indexOfFirstIndustry: number = indexOfLastIndustry - industriesPerPage;
-  const currentIndustries: Industry[] = memoizedIndustries.slice(
+  const currentIndustries: IndustryItem[] = memoizedIndustries.slice(
     indexOfFirstIndustry,
     indexOfLastIndustry
   );
   const totalPages: number = Math.ceil(
     memoizedIndustries.length / industriesPerPage
   );
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const industriesRepository = new IndustriesRepository();
+        const fetchIndustriesUsecase = new FetchIndustryUsecase(
+          industriesRepository
+        );
+        const industries = await fetchIndustriesUsecase.fetch();
+        setIndustries(industries.industries);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchData();
+  }, []);
 
   return (
     <React.Fragment>
@@ -121,8 +133,14 @@ export default function Industries() {
                       </tr>
                     </thead>
                     <tbody>
-                      {currentIndustries.map((industry: Industry) => (
-                        <IndustryRow key={industry.id} industry={industry} />
+                      {currentIndustries.map((industry: IndustryItem) => (
+                        <IndustryRow
+                          key={industry.name}
+                          industry={{
+                            name: industry.name,
+                            registeredUsers: industry.registeredUsers,
+                          }}
+                        />
                       ))}
                     </tbody>
                   </table>
