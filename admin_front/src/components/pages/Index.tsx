@@ -13,6 +13,8 @@ import {
   FetchUsersOutput,
 } from "../../usecases/FetchUsersUsecase";
 import { UserItem } from "../../models/presentation/UserItem";
+import { GetUserDetailUsecase } from "../../usecases/GetUserDetailUsecase";
+import { GetUserDetailOutput } from "../../usecases/GetUserDetailUsecase";
 
 const meta = {
   title: "",
@@ -24,8 +26,17 @@ const meta = {
 
 export default function Users() {
   const navigate = useNavigate();
-  const handleCellClick = (userId: number) => {
-    navigate(`/users/details/${userId}`);
+  const handleCellClick = async (userId: number) => {
+    const usersRepository = new UsersRepository();
+    const getUserDetailUsecase = new GetUserDetailUsecase(usersRepository);
+
+    try {
+      const userDetailOutput = await getUserDetailUsecase.fetch(String(userId));
+      console.log("User detail item:", userDetailOutput.user);
+      navigate(`/users/details/${userId}`);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
   };
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -48,7 +59,7 @@ export default function Users() {
         const output: FetchUsersOutput = await fetchUsersUsecase.fetch();
         const usersCell = output.users;
         setUsers(usersCell);
-        console.log("usersCell:", usersCell);
+        // console.log("usersCell:", usersCell);
       } catch (err) {
         console.error(err);
         setError("データの取得に失敗しました。");
