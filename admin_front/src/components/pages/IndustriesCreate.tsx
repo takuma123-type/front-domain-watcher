@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
 import { useNavigate } from "react-router-dom";
-import { API } from "../../infrastructure/API";
+import { IndustriesRepository } from "../../infrastructure/repositories/IndustriesRepository";
 
 interface Meta {
   title: string;
@@ -14,7 +14,7 @@ interface Meta {
 
 interface CreateIndustryParams {
   name: string;
-  note: string; // noteプロパティを追加
+  note: string;
 }
 
 const meta: Meta = {
@@ -46,9 +46,9 @@ const IndustriesCreate: React.FC = () => {
       return;
     }
     try {
-      await API.createIndustry({
+      await IndustriesRepository.createIndustry({
         name: industryName,
-        note: "",
+        note: note,
       });
       navigate("/industries");
     } catch (error) {
