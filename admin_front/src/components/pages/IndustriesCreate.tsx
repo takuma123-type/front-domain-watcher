@@ -16,11 +16,6 @@ interface Meta {
   script: any[];
 }
 
-interface CreateIndustryParams {
-  name: string;
-  note: string;
-}
-
 const meta: Meta = {
   title: "",
   meta: [],
