@@ -3,6 +3,9 @@ import { API } from "../API";
 import { UnauthorizedError, UnknownError } from "./errors";
 
 export class IndustriesRepository {
+  static create(arg0: { name: string }) {
+    throw new Error("Method not implemented.");
+  }
   async fetch(sessionToken: string): Promise<any> {
     try {
       const response = await axios.get(API.createURL(API.URL.industries()), {
