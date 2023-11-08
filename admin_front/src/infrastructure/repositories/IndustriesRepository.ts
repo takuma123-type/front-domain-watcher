@@ -8,6 +8,9 @@ interface CreateIndustryParams {
 }
 
 export class IndustriesRepository {
+  async save(name: string, note: string): Promise<void> {
+    await IndustriesRepository.createIndustry({ name, note });
+  }
   static create(arg0: { name: string }) {
     throw new Error("Method not implemented.");
   }

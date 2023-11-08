@@ -3,6 +3,10 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
 import { useNavigate } from "react-router-dom";
 import { IndustriesRepository } from "../../infrastructure/repositories/IndustriesRepository";
+import {
+  CreateIndustryInput,
+  CreateIndustryUsecase,
+} from "../../usecases/CreateIndustryUsecase";
 
 interface Meta {
   title: string;
@@ -46,10 +50,10 @@ const IndustriesCreate: React.FC = () => {
       return;
     }
     try {
-      await IndustriesRepository.createIndustry({
-        name: industryName,
-        note: note,
-      });
+      const input = new CreateIndustryInput({ name: industryName, note: note });
+      const industryRepository = new IndustriesRepository();
+      const usecase = new CreateIndustryUsecase(input, industryRepository);
+      await usecase.create();
       navigate("/industries");
     } catch (error) {
       console.error(error);
