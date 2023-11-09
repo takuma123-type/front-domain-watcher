@@ -5,6 +5,7 @@ export class API {
     user: (params: { userId: string }) =>
       `${this.BASE_PATH}/users/${params.userId}`,
     industries: () => `${this.BASE_PATH}/industries`,
+    industryCreate: () => `${this.BASE_PATH}/industries`,
   };
 
   public static createURL(url: string): string {

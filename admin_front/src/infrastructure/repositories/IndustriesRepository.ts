@@ -2,7 +2,18 @@ import axios from "axios";
 import { API } from "../API";
 import { UnauthorizedError, UnknownError } from "./errors";
 
+interface CreateIndustryParams {
+  name: string;
+  note: string;
+}
+
 export class IndustriesRepository {
+  async save(name: string, note: string): Promise<void> {
+    await IndustriesRepository.createIndustry({ name, note });
+  }
+  static create(arg0: { name: string }) {
+    throw new Error("Method not implemented.");
+  }
   async fetch(sessionToken: string): Promise<any> {
     try {
       const response = await axios.get(API.createURL(API.URL.industries()), {
@@ -17,6 +28,33 @@ export class IndustriesRepository {
 
       if (response.status === 200) {
         return response;
+      }
+
+      if (response.status === 401) {
+        throw new UnauthorizedError();
+      }
+
+      throw new UnknownError();
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  static async createIndustry(industry: CreateIndustryParams) {
+    try {
+      const response = await axios.post(
+        API.createURL(API.URL.industryCreate()),
+        JSON.stringify(industry),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 201) {
+        return response.data;
       }
 
       if (response.status === 401) {
