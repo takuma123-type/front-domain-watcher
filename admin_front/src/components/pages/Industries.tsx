@@ -140,6 +140,7 @@ export default function Industries() {
                             id: industry.id, // idプロパティを追加
                             name: industry.name,
                             registeredUsers: industry.registeredUsers,
+                            note: industry.note, // noteプロパティを追加
                           }}
                         />
                       ))}

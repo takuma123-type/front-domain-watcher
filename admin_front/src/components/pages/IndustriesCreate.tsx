@@ -45,7 +45,11 @@ const IndustriesCreate: React.FC = () => {
       return;
     }
     try {
-      const input = new CreateIndustryInput({ name: industryName, note: note });
+      const input = new CreateIndustryInput({
+        id: 0,
+        name: industryName,
+        note: note,
+      });
       const industryRepository = new IndustriesRepository();
       const usecase = new CreateIndustryUsecase(input, industryRepository);
       await usecase.create();

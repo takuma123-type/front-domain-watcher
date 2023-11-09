@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import DeleteModal from "../../organisms/shared/DeleteModal";
 import EditModal from "../../organisms/shared/EditModal";
-import { API } from "../../../infrastructure/API";
+import { IndustriesRepository } from "../../../infrastructure/repositories/IndustriesRepository";
+import { IndustryItem } from "../../../models/presentation/IndustryItem";
+
+interface IndustryRowProps {
+  key: number;
+  industry: IndustryItem;
+}
 
 interface Industry {
   id: number;
   name: string;
   registeredUsers: number;
+  note: string;
 }
 
 const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
@@ -42,13 +49,16 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
 
     // 業種を更新
     const updatedIndustry = {
-      id: industry.id.toString(), // number型のidをstring型に変換
+      id: industry.id, // industryオブジェクトにidプロパティがあると仮定
       name: value,
+      note: industry.note, // noteプロパティを追加
     };
     try {
-      await API.updateIndustry(updatedIndustry);
+      await IndustriesRepository.updateIndustry(updatedIndustry);
+      // 更新が成功したら、何か処理を行う
     } catch (error) {
       console.error(error);
+      // エラーハンドリングを行う
     }
   };
 

@@ -3,7 +3,7 @@ import { API } from "../API";
 import { UnauthorizedError, UnknownError } from "./errors";
 
 interface CreateIndustryParams {
-  id: string;
+  id: number;
   name: string;
   note: string;
 }
@@ -39,11 +39,11 @@ export class IndustriesRepository {
     }
   }
 
-  async save(name: string, note: string): Promise<void> {
+  async save(id: number, name: string, note: string): Promise<void> {
     await IndustriesRepository.createIndustry({
+      id,
       name,
       note,
-      id: "",
     });
   }
   static create(arg0: { name: string }) {

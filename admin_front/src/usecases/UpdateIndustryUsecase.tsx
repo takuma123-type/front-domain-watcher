@@ -14,7 +14,7 @@ export class UpdateIndustryInput {
 
 export class UpdateIndustryUsecase {
   readonly input: UpdateIndustryInput;
-  private industryRepository: IndustriesRepository;
+  public industryRepository: IndustriesRepository;
 
   constructor(
     input: UpdateIndustryInput,
@@ -25,8 +25,8 @@ export class UpdateIndustryUsecase {
   }
 
   async update(): Promise<void> {
-    IndustriesRepository.update({
-      id: "",
+    IndustriesRepository.updateIndustry({
+      id: this.input.id,
       name: this.input.name,
       note: this.input.note,
     });
