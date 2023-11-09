@@ -81,26 +81,27 @@ export class IndustriesRepository {
     try {
       const response = await axios.put(
         API.createURL(API.URL.industryUpdate({ industryId: industry.id })),
-        JSON.stringify(industry),
+        industry,
         {
-          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
         }
       );
-      if (response.status === 200) {
+
+      if (response.status >= 200 && response.status < 300) {
         return response.data;
       }
-
-      if (response.status === 401) {
-        throw new UnauthorizedError();
+      switch (response.status) {
+        case 400:
+          throw new response.data();
+        case 401:
+          throw new UnauthorizedError(response.data);
+        case 404:
+          throw new response.data();
+        default:
+          throw new UnknownError(response.data);
       }
-
-      throw new UnknownError();
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    } catch (error) {}
   }
 }

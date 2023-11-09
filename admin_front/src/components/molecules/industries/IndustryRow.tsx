@@ -3,6 +3,10 @@ import DeleteModal from "../../organisms/shared/DeleteModal";
 import EditModal from "../../organisms/shared/EditModal";
 import { IndustriesRepository } from "../../../infrastructure/repositories/IndustriesRepository";
 import { IndustryItem } from "../../../models/presentation/IndustryItem";
+import {
+  UpdateIndustryUsecase,
+  UpdateIndustryInput,
+} from "../../../usecases/UpdateIndustryUsecase"; // ユースケースのパスを適切に設定してください
 
 interface IndustryRowProps {
   key: number;
@@ -48,13 +52,17 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
     console.log(`Edit ${industry.name} to ${value}`);
 
     // 業種を更新
-    const updatedIndustry = {
+    const updatedIndustry = new UpdateIndustryInput({
       id: industry.id, // industryオブジェクトにidプロパティがあると仮定
       name: value,
       note: industry.note, // noteプロパティを追加
-    };
+    });
     try {
-      await IndustriesRepository.updateIndustry(updatedIndustry);
+      const usecase = new UpdateIndustryUsecase(
+        updatedIndustry,
+        new IndustriesRepository()
+      );
+      await usecase.update();
       // 更新が成功したら、何か処理を行う
     } catch (error) {
       console.error(error);
