@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import DeleteModal from "../../organisms/shared/DeleteModal";
 import EditModal from "../../organisms/shared/EditModal";
+import { API } from "../../../infrastructure/API";
 
 interface Industry {
+  id: number;
   name: string;
   registeredUsers: number;
 }
@@ -33,10 +35,21 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
     setIsEditModalVisible(false);
   };
 
-  const handleEditModalConfirm = (value: string) => {
+  const handleEditModalConfirm = async (value: string) => {
     setEditValue(value);
     setIsEditModalVisible(false);
     console.log(`Edit ${industry.name} to ${value}`);
+
+    // 業種を更新
+    const updatedIndustry = {
+      id: industry.id.toString(), // number型のidをstring型に変換
+      name: value,
+    };
+    try {
+      await API.updateIndustry(updatedIndustry);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

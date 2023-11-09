@@ -3,15 +3,13 @@ import { API } from "../API";
 import { UnauthorizedError, UnknownError } from "./errors";
 
 interface CreateIndustryParams {
+  id: string;
   name: string;
   note: string;
 }
 
 export class IndustriesRepository {
-  async save(name: string, note: string): Promise<void> {
-    await IndustriesRepository.createIndustry({ name, note });
-  }
-  static create(arg0: { name: string }) {
+  static update(arg0: { id: string; name: string; note: string }) {
     throw new Error("Method not implemented.");
   }
   async fetch(sessionToken: string): Promise<any> {
@@ -41,6 +39,17 @@ export class IndustriesRepository {
     }
   }
 
+  async save(name: string, note: string): Promise<void> {
+    await IndustriesRepository.createIndustry({
+      name,
+      note,
+      id: "",
+    });
+  }
+  static create(arg0: { name: string }) {
+    throw new Error("Method not implemented.");
+  }
+
   static async createIndustry(industry: CreateIndustryParams) {
     try {
       const response = await axios.post(
@@ -54,6 +63,33 @@ export class IndustriesRepository {
         }
       );
       if (response.status === 201) {
+        return response.data;
+      }
+
+      if (response.status === 401) {
+        throw new UnauthorizedError();
+      }
+
+      throw new UnknownError();
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  static async updateIndustry(industry: CreateIndustryParams) {
+    try {
+      const response = await axios.put(
+        API.createURL(API.URL.industryUpdate({ industryId: industry.id })),
+        JSON.stringify(industry),
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 200) {
         return response.data;
       }
 
