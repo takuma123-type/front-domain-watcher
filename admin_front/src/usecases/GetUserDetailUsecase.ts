@@ -10,7 +10,6 @@ export class GetUserDetailOutput {
 
   constructor(user: UserDetailItem) {
     this.user = user;
-    // console.log("GetUserDetailOutput constructor - user:", this.user);
   }
 }
 

@@ -135,12 +135,12 @@ export default function Industries() {
                     <tbody>
                       {currentIndustries.map((industry: IndustryItem) => (
                         <IndustryRow
-                          key={industry.id} // keyをindustry.idに変更
+                          key={industry.id}
                           industry={{
-                            id: industry.id, // idプロパティを追加
+                            id: industry.id,
                             name: industry.name,
                             registeredUsers: industry.registeredUsers,
-                            note: industry.note, // noteプロパティを追加
+                            note: industry.note,
                           }}
                         />
                       ))}
