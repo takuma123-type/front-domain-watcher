@@ -104,4 +104,31 @@ export class IndustriesRepository {
       }
     } catch (error) {}
   }
+
+  static async deleteIndustry(industry: CreateIndustryParams) {
+    try {
+      const response = await axios.delete(
+        API.createURL(API.URL.industryDelete({ industryId: industry.id })),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status >= 200 && response.status < 300) {
+        return response.data;
+      }
+      switch (response.status) {
+        case 400:
+          throw new response.data();
+        case 401:
+          throw new UnauthorizedError(response.data);
+        case 404:
+          throw new response.data();
+        default:
+          throw new UnknownError(response.data);
+      }
+    } catch (error) {}
+  }
 }
