@@ -7,6 +7,10 @@ import {
   UpdateIndustryUsecase,
   UpdateIndustryInput,
 } from "../../../usecases/UpdateIndustryUsecase";
+import {
+  DeleteIndustryUsecase,
+  DeleteIndustryInput,
+} from "../../../usecases/DeleteIndustryUsecase";
 
 interface Industry {
   id: number;
@@ -19,6 +23,7 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editValue, setEditValue] = useState(industry.name);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const handleDeleteClick = () => {
     setIsModalVisible(true);
@@ -41,6 +46,23 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
     setIsEditModalVisible(false);
   };
 
+  const handleDeleteConfirm = async () => {
+    const deletedIndustry = new DeleteIndustryInput({
+      id: industry.id,
+    });
+    try {
+      const usecase = new DeleteIndustryUsecase(
+        deletedIndustry,
+        new IndustriesRepository()
+      );
+      await usecase.delete();
+      setIsModalVisible(false);
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleEditModalConfirm = async (value: string) => {
     setEditValue(value);
     setIsEditModalVisible(false);
@@ -57,6 +79,7 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
         new IndustriesRepository()
       );
       await usecase.update();
+      window.location.reload();
     } catch (error) {
       console.error(error);
     }
@@ -96,7 +119,7 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
       {isModalVisible && (
         <DeleteModal
           onCancel={handleModalCancel}
-          onConfirm={handleModalConfirm}
+          onConfirm={handleDeleteConfirm}
           initialValue={editValue}
           deleteTarget={`${industry.name}`}
           isVisible={isModalVisible}
