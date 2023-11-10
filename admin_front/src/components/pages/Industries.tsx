@@ -135,10 +135,12 @@ export default function Industries() {
                     <tbody>
                       {currentIndustries.map((industry: IndustryItem) => (
                         <IndustryRow
-                          key={industry.name}
+                          key={industry.id}
                           industry={{
+                            id: industry.id,
                             name: industry.name,
                             registeredUsers: industry.registeredUsers,
+                            note: industry.note,
                           }}
                         />
                       ))}

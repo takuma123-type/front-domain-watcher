@@ -1,3 +1,10 @@
+import axios from "axios";
+
+interface CreateIndustryParams {
+  id: string;
+  name: string;
+}
+
 export class API {
   private static BASE_PATH = "/admin";
   public static URL = {
@@ -6,6 +13,8 @@ export class API {
       `${this.BASE_PATH}/users/${params.userId}`,
     industries: () => `${this.BASE_PATH}/industries`,
     industryCreate: () => `${this.BASE_PATH}/industries`,
+    industryUpdate: (params: { industryId: number }) =>
+      `${this.BASE_PATH}/industries/${params.industryId}`,
   };
 
   public static createURL(url: string): string {

@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import DeleteModal from "../../organisms/shared/DeleteModal";
 import EditModal from "../../organisms/shared/EditModal";
+import { IndustriesRepository } from "../../../infrastructure/repositories/IndustriesRepository";
+import { IndustryItem } from "../../../models/presentation/IndustryItem";
+import {
+  UpdateIndustryUsecase,
+  UpdateIndustryInput,
+} from "../../../usecases/UpdateIndustryUsecase";
 
 interface Industry {
+  id: number;
   name: string;
   registeredUsers: number;
+  note: string;
 }
 
 const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
@@ -33,10 +41,25 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
     setIsEditModalVisible(false);
   };
 
-  const handleEditModalConfirm = (value: string) => {
+  const handleEditModalConfirm = async (value: string) => {
     setEditValue(value);
     setIsEditModalVisible(false);
     console.log(`Edit ${industry.name} to ${value}`);
+
+    const updatedIndustry = new UpdateIndustryInput({
+      id: industry.id,
+      name: value,
+      note: industry.note,
+    });
+    try {
+      const usecase = new UpdateIndustryUsecase(
+        updatedIndustry,
+        new IndustriesRepository()
+      );
+      await usecase.update();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

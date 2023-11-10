@@ -36,6 +36,7 @@ export class FetchIndustryUsecase {
           new IndustryItem({
             id: industry.id,
             name: industry.name,
+            note: industry.note,
           })
       );
       return new FetchIndustriesOutput(industries || []);
