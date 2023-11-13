@@ -65,6 +65,14 @@ const Header: React.FC = () => {
               </Link>
             </li>
             <li className="mr-10">
+              <Link 
+                className={`text-sm font-medium ${isActive("/old_girls")}`}
+                to="/old_girls"
+              >
+                OG一覧
+              </Link>
+            </li>
+            <li className="mr-10">
               <Link
                 className={`text-sm font-medium ${isActive("/industries")}`}
                 to="/industries"
@@ -154,6 +162,18 @@ const Header: React.FC = () => {
                   />
                   <p className="hover:text-neutral-700 font-medium">
                     ユーザ一覧
+                  </p>
+                </Link>
+              </div>
+              <div className="w-auto p-2.5">
+                <Link className="flex flex-wrap items-center" to="/old_girls">
+                  <img
+                    className="mr-3"
+                    src="dashy-assets/images/home-2.svg"
+                    alt=""
+                  />
+                  <p className="hover:text-neutral-700 font-medium">
+                    OG一覧
                   </p>
                 </Link>
               </div>
