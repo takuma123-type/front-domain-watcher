@@ -22,7 +22,7 @@ const meta = {
   script: [],
 };
 
-export default function Users() {
+export default function OldGirls() {
   const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -45,6 +45,7 @@ export default function Users() {
         const output: FetchOldGirlsOutput = await fetchOldGirlsUsecase.fetch();
         const oldGirlsCell = output.oldGirls;
         setOldGirls(oldGirlsCell);
+        console.log("oldGirlsCell:", oldGirlsCell);
         // console.log("usersCell:", usersCell);
       } catch (err) {
         console.error(err);
@@ -68,6 +69,10 @@ export default function Users() {
     const currentCell = filteredUsers.slice(offset, offset + itemsPerPage);
     setCurrentUsers(currentCell);
   }, [filteredUsers, currentPage, itemsPerPage]);
+
+  function handleCellClick(id: number): void {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <React.Fragment>
@@ -102,7 +107,13 @@ export default function Users() {
                       </tr>
                     </thead>
                     <tbody>
-                      
+                      {currentUsers.map((user) => (
+                        <TableRow
+                          key={user.id}
+                          {...user}
+                          onCellClick={() => handleCellClick(user.id)}
+                        />
+                      ))}
                     </tbody>
                   </table>
                 </div>
