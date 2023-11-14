@@ -12,7 +12,8 @@ import ThemesCreate from "./components/pages/ThemesCreate";
 import UserDetails from "./components/pages/UserDetails";
 import SignIn from "./components/pages/SignIn";
 import AdminUsers from "./components/pages/AdminUsers";
-import OldGirls from "./components/pages/OldGirls"
+import OldGirls from "./components/pages/OldGirls";
+import JobSeekers from "./components/pages/JobSeekers";
 
 function App(): JSX.Element {
   return (
@@ -31,6 +32,7 @@ function App(): JSX.Element {
       <Route path="/admin_users" element={<AdminUsers />} />
       <Route path="/users/details/:id" element={<UserDetails />} />
       <Route path="/old_girls" element={<OldGirls />} />
+      <Route path="/job_seekers" element={<JobSeekers />} />
     </Routes>
   );
 }
