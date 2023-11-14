@@ -33,6 +33,7 @@ export class GetOldGirlDetailUsecase {
         id: response.data.results.id,
         code: response.data.results.code,
         name: response.data.results.name,
+        careers: response.data.results.careers,
       });
       return new GetOldGirlDetailOutput(user);
     } catch (e) {

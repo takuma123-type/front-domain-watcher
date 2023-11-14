@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import DeleteModal from "../shared/DeleteModal";
 
+interface Career {
+  industry: string;
+  occupation: string;
+  start_date: number;
+  description: string;
+}
+
 interface User {
   id: number;
   code: string;
   name: string;
+  careers: Career[];
 }
 
 interface Props {
@@ -60,6 +68,42 @@ const DetailsView: React.FC<Props> = ({ user }) => {
           </div>
           <span className="text-sm">{user.code}</span>
         </div>
+        {user.careers.map((career, index) => (
+          <div key={index}>
+            <div className="flex mb-4 justify-between items-center">
+              <div className="flex items-center">
+                <h4 className="text-sm text-gray-500">業種</h4>
+              </div>
+              <div>
+                <span className="text-sm">{career.industry}</span>
+              </div>
+            </div>
+            <div className="flex mb-4 justify-between items-center">
+              <div className="flex items-center">
+                <h4 className="text-sm text-gray-500">職種</h4>
+              </div>
+              <div>
+                <span className="text-sm">{career.occupation}</span>
+              </div>
+            </div>
+            <div className="flex mb-4 justify-between items-center">
+              <div className="flex items-center">
+                <h4 className="text-sm text-gray-500">利用開始日</h4>
+              </div>
+              <div>
+                <span className="text-sm">{career.start_date}</span>
+              </div>
+            </div>
+            <div className="flex mb-4 justify-between items-center">
+              <div className="flex items-center">
+                <h4 className="text-sm text-gray-500">自己紹介</h4>
+              </div>
+              <div>
+                <span className="text-sm">{career.description}</span>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
