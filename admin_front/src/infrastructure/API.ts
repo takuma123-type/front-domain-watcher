@@ -19,6 +19,8 @@ export class API {
       `${this.BASE_PATH}/industries/${params.industryId}`,
     old_girls: () => `${this.BASE_PATH}/old_girls`,
     job_seekers: () => `${this.BASE_PATH}/job_seekers`,
+    job_seeker: (params: { userId: string }) =>
+      `${this.BASE_PATH}/job_seekers/${params.userId}`,
   };
 
   public static createURL(url: string): string {
