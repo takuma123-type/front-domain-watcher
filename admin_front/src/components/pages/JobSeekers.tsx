@@ -13,6 +13,8 @@ import {
   FetchJobSeekersOutput,
 } from "../../usecases/FetchJobSeekersUsecase";
 import { JobSeekerItem } from "../../models/presentation/JobSeekerItem";
+import { GetJobSeekerDetailUsecase } from "../../usecases/GetJobSeekerDetailUsecase";
+import { GetJobSeekerDetailOutput } from "../../usecases/GetJobSeekerDetailUsecase";
 
 const meta = {
   title: "",
@@ -24,6 +26,22 @@ const meta = {
 
 export default function JobSeekers() {
   const navigate = useNavigate();
+  const handleCellClick = async (userId: number) => {
+    const jobSeekersRepository = new JobSeekersRepository();
+    const getJobSeekerDetailUsecase = new GetJobSeekerDetailUsecase(
+      jobSeekersRepository
+    );
+
+    try {
+      const jobSeekerDetailOutput = await getJobSeekerDetailUsecase.get(
+        String(userId)
+      );
+      console.log("User detail item:", jobSeekerDetailOutput.user);
+      navigate(`/job_seekers/${userId}`);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
@@ -71,10 +89,6 @@ export default function JobSeekers() {
     const currentCell = filteredUsers.slice(offset, offset + itemsPerPage);
     setCurrentUsers(currentCell);
   }, [filteredUsers, currentPage, itemsPerPage]);
-
-  function handleCellClick(id: number): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <React.Fragment>

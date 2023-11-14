@@ -14,6 +14,7 @@ import SignIn from "./components/pages/SignIn";
 import AdminUsers from "./components/pages/AdminUsers";
 import OldGirls from "./components/pages/OldGirls";
 import JobSeekers from "./components/pages/JobSeekers";
+import JobSeekerDetails from "./components/pages/JobSeekerDetail";
 
 function App(): JSX.Element {
   return (
@@ -33,6 +34,7 @@ function App(): JSX.Element {
       <Route path="/users/details/:id" element={<UserDetails />} />
       <Route path="/old_girls" element={<OldGirls />} />
       <Route path="/job_seekers" element={<JobSeekers />} />
+      <Route path="/job_seekers/:id" element={<JobSeekerDetails />} />
     </Routes>
   );
 }
