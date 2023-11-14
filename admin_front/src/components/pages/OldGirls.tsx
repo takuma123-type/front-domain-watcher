@@ -13,6 +13,8 @@ import {
   FetchOldGirlsOutput,
 } from "../../usecases/FetchOldGirlsUsecase";
 import { OldGirlItem } from "../../models/presentation/OldGirlItem";
+import { GetOldGirlDetailUsecase } from "../../usecases/GetOldGirlDetailUsecase";
+import { GetOldGirlDetailOutput } from "../../usecases/GetOldGirlDetailUsecase";
 
 const meta = {
   title: "",
@@ -24,6 +26,22 @@ const meta = {
 
 export default function OldGirls() {
   const navigate = useNavigate();
+  const handleCellClick = async (userId: number) => {
+    const oldGirlsRepository = new OldGirlsRepository();
+    const getOldGirlDetailUsecase = new GetOldGirlDetailUsecase(
+      oldGirlsRepository
+    );
+
+    try {
+      const oldGirlDetailOutput = await getOldGirlDetailUsecase.get(
+        String(userId)
+      );
+      console.log("User detail item:", oldGirlDetailOutput.user);
+      navigate(`/old_girls/${userId}`);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
@@ -69,10 +87,6 @@ export default function OldGirls() {
     const currentCell = filteredUsers.slice(offset, offset + itemsPerPage);
     setCurrentUsers(currentCell);
   }, [filteredUsers, currentPage, itemsPerPage]);
-
-  function handleCellClick(id: number): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <React.Fragment>

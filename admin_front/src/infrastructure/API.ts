@@ -18,6 +18,8 @@ export class API {
     industryDelete: (params: { industryId: number }) =>
       `${this.BASE_PATH}/industries/${params.industryId}`,
     old_girls: () => `${this.BASE_PATH}/old_girls`,
+    old_girl: (params: { userId: string }) =>
+      `${this.BASE_PATH}/old_girls/${params.userId}`,
     job_seekers: () => `${this.BASE_PATH}/job_seekers`,
     job_seeker: (params: { userId: string }) =>
       `${this.BASE_PATH}/job_seekers/${params.userId}`,
