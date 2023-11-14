@@ -32,7 +32,7 @@ export class OldGirlsRepository {
   async getOldGirl(sessionToken: string, userId: string): Promise<any> {
     try {
       const response = await axios.get(
-        API.createURL(API.URL.job_seeker({ userId: userId })),
+        API.createURL(API.URL.old_girl({ userId: userId })),
         {
           headers: {
             Accept: "application/json",
