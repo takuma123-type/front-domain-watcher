@@ -1,4 +1,7 @@
-import { InvalidParameterError } from "../infrastructure/repositories";
+import {
+  InvalidParameterError,
+  FailSignUpError
+} from "../infrastructure/repositories";
 import { SessionsRepository } from "../infrastructure/repositories/SessionsRepository";
 
 export class CreateSessionInput {
@@ -37,12 +40,12 @@ export class CreateSessionUsecase {
       );
     } catch (error) {
       console.error(error);
-      throw error;
+      return Promise.reject(new FailSignUpError());
     }
     return new CreateSessionOutput();
   }
 
   private validInput(input: CreateSessionInput): boolean {
-    return !!input.username;
+    return !!input.username && !!input.password;
   }
 }

@@ -2,6 +2,10 @@ import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SessionsRepository } from "../../infrastructure/repositories/SessionsRepository";
 import {
+  InvalidParameterError,
+  FailSignUpError
+} from "../../infrastructure/repositories";
+import {
   CreateSessionInput,
   CreateSessionUsecase,
 } from "../../usecases/CreateSessionUsecase";
@@ -25,7 +29,11 @@ const SignUp: React.FC = () => {
       await usecase.create();
       navigate("/");
     } catch (error) {
-      setErrorMessage('sign upに失敗しました');
+      if (error instanceof InvalidParameterError) {
+        setErrorMessage('EmailまたはPasswordが入力されていません');
+      } else if (error instanceof FailSignUpError){
+        setErrorMessage('sign upに失敗しました');
+      }
       console.error(error);
     }
   };
