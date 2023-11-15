@@ -21,6 +21,7 @@ export default function OldGirlDetails() {
   const [oldGirlOutput, setOldGirlsDetailOutput] =
     useState<OldGirlDetailItem | null>(null);
   const { id = "" } = useParams<{ id?: string }>();
+  const oldGirlIdNumber = Number(id);
 
   useEffect(() => {
     const oldGirlsRepository = new OldGirlsRepository();
@@ -92,7 +93,7 @@ export default function OldGirlDetails() {
                 </div>
               </div>
               {isVerificationView ? (
-                <VerificationView oldGirlId={0} />
+                <VerificationView oldGirlId={oldGirlIdNumber} />
               ) : (
                 <DetailsView user={oldGirlOutput} />
               )}

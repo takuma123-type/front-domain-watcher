@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { OldGirlsRepository } from "../../../infrastructure/repositories/OldGirlsRepository";
+import { useParams } from "react-router-dom";
 
 interface VerificationViewProps {
   oldGirlId: number;
@@ -7,13 +9,20 @@ interface VerificationViewProps {
 
 const VerificationView: React.FC<VerificationViewProps> = ({ oldGirlId }) => {
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
+  const oldGirlsRepository = new OldGirlsRepository();
 
-  const sendVerificationRequest = async (verified: boolean) => {
-    setIsVerified(verified);
-    axios.post(`/admin/old_girls/${oldGirlId}/verify`, {
-      is_verified: verified,
-    });
-    console.log(`Sending verification: ${verified}`);
+  const sendVerificationRequest = async (is_verified: boolean) => {
+    setIsVerified(is_verified);
+    try {
+      await oldGirlsRepository.verifyOldGirl(
+        "sessionToken",
+        oldGirlId,
+        is_verified
+      );
+      console.log(`Sending verification: ${is_verified}`);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

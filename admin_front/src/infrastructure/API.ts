@@ -20,6 +20,8 @@ export class API {
     old_girls: () => `${this.BASE_PATH}/old_girls`,
     old_girl: (params: { userId: string }) =>
       `${this.BASE_PATH}/old_girls/${params.userId}`,
+    verifyOldGirl: (params: { userId: number }) =>
+      `${this.BASE_PATH}/old_girls/${params.userId}/verify`,
     job_seekers: () => `${this.BASE_PATH}/job_seekers`,
     job_seeker: (params: { userId: string }) =>
       `${this.BASE_PATH}/job_seekers/${params.userId}`,
