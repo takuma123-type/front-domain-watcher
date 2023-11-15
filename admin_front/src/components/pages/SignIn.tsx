@@ -10,6 +10,7 @@ const SignUp: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error_message, setErrorMessage] = useState('');
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -24,6 +25,7 @@ const SignUp: React.FC = () => {
       await usecase.create();
       navigate("/");
     } catch (error) {
+      setErrorMessage('sign upに失敗しました');
       console.error(error);
     }
   };
@@ -62,6 +64,13 @@ const SignUp: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+              </div>
+              <div className="mt-4 mb-4">
+                {error_message && (
+                  <p className="text-red-500 text-center">
+                    {error_message}
+                  </p>
+                )}
               </div>
               <button
                 type="submit"

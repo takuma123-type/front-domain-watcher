@@ -30,10 +30,15 @@ export class CreateSessionUsecase {
     }
     console.log(this.input);
 
-    await this.sessionRepository.save(
-      this.input.username,
-      this.input.password
-    );
+    try {
+      await this.sessionRepository.save(
+        this.input.username,
+        this.input.password
+      );
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
     return new CreateSessionOutput();
   }
 
