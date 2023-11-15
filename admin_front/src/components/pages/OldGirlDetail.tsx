@@ -92,7 +92,7 @@ export default function OldGirlDetails() {
                 </div>
               </div>
               {isVerificationView ? (
-                <VerificationView />
+                <VerificationView oldGirlId={0} />
               ) : (
                 <DetailsView user={oldGirlOutput} />
               )}

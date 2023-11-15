@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 interface VerificationViewProps {
   oldGirlId: number;
@@ -9,7 +10,9 @@ const VerificationView: React.FC<VerificationViewProps> = ({ oldGirlId }) => {
 
   const sendVerificationRequest = async (verified: boolean) => {
     setIsVerified(verified);
-    axios.post(`/admin/old_girls/${oldGirlId}/verify`, { is_verified: verified })
+    axios.post(`/admin/old_girls/${oldGirlId}/verify`, {
+      is_verified: verified,
+    });
     console.log(`Sending verification: ${verified}`);
   };
 
