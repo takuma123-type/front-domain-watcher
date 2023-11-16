@@ -1,12 +1,42 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { SessionsRepository } from "../../infrastructure/repositories/SessionsRepository";
+import {
+  InvalidParameterError,
+  FailSignUpError
+} from "../../infrastructure/repositories";
+import {
+  CreateSessionInput,
+  CreateSessionUsecase,
+} from "../../usecases/CreateSessionUsecase";
 
 const SignUp: React.FC = () => {
-  const handleSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-    },
-    []
-  );
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error_message, setErrorMessage] = useState('');
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    console.log(email, password);
+    try {
+      const input = new CreateSessionInput({
+        username: email,
+        password: password,
+      });
+      const sessionRepository = new SessionsRepository();
+      const usecase = new CreateSessionUsecase(input, sessionRepository);
+      await usecase.create();
+      navigate("/");
+    } catch (error) {
+      if (error instanceof InvalidParameterError) {
+        setErrorMessage('EmailまたはPasswordが入力されていません');
+      } else if (error instanceof FailSignUpError){
+        setErrorMessage('sign upに失敗しました');
+      }
+      console.error(error);
+    }
+  };
 
   return (
     <div>
@@ -26,6 +56,8 @@ const SignUp: React.FC = () => {
                   id="email"
                   placeholder="Your Email"
                   className="w-full px-4 py-2 text-lg border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 border"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="mb-4">
@@ -37,18 +69,16 @@ const SignUp: React.FC = () => {
                   id="password"
                   placeholder="Password"
                   className="w-full px-4 py-2 text-lg border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 border"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <div className="mb-4">
-                <label htmlFor="confirmPassword" className="block text-sm mb-2">
-                  パスワード確認:
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  placeholder="Confirm password"
-                  className="w-full px-4 py-2 text-lg border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 border"
-                />
+              <div className="mt-4 mb-4">
+                {error_message && (
+                  <p className="text-red-500 text-center">
+                    {error_message}
+                  </p>
+                )}
               </div>
               <button
                 type="submit"

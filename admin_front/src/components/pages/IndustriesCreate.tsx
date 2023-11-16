@@ -41,6 +41,7 @@ const IndustriesCreate: React.FC = () => {
 
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    console.log(industryName)
     if (industryName.trim() === "") {
       return;
     }
