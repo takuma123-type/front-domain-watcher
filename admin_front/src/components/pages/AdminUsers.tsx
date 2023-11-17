@@ -1,21 +1,14 @@
-import React, { memo, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
 import TableHeader from "../molecules/admin_users/TableHeader";
 import TableRow from "../molecules/admin_users/TableRow";
 import Pagination from "../organisms/shared/Pagination";
-import users from "../../data/users";
+import { AdminUsersRepository } from "../../infrastructure/repositories/AdminUsersRepository";
+import { FetchAdminUsersUsecase } from "../../usecases/FetchAdminUsersUsecase";
+import { AdminUserItem } from "../../models/presentation/AdminUserItem";
 
-interface Meta {
-  title: string;
-  meta: any[];
-  link: any[];
-  style: any[];
-  script: any[];
-}
-
-const meta: Meta = {
+const meta = {
   title: "",
   meta: [],
   link: [],
@@ -23,19 +16,39 @@ const meta: Meta = {
   script: [],
 };
 
-const AdminUsers = () => {
+export default function AdminUsers() {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const usersPerPage: number = 10;
-  const indexOfLastUser: number = currentPage * usersPerPage;
-  const indexOfFirstUser: number = indexOfLastUser - usersPerPage;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages: number = Math.ceil(users.length / usersPerPage);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [adminUsers, setAdminUsers] = useState<AdminUserItem[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(0);
 
-  const handleCellClick = () => {};
+  useEffect(() => {
+    const adminUsersRepository = new AdminUsersRepository();
+    const fetchAdminUsersUsecase = new FetchAdminUsersUsecase(adminUsersRepository);
+
+    const fetchAdminUsers = async () => {
+      try {
+        const output = await fetchAdminUsersUsecase.fetch();
+        setAdminUsers(output.adminUsers);
+        setTotalPages(Math.ceil(output.adminUsers.length / itemsPerPage));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchAdminUsers();
+  }, [itemsPerPage]);
+
+  const currentUsers = adminUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
-    <HelmetProvider>
-      <Helmet {...meta}></Helmet>
+    <React.Fragment>
+      <HelmetProvider>
+        <Helmet {...meta}></Helmet>
+      </HelmetProvider>
       <Header />
       <section className="py-4 overflow-hidden">
         <div className="container px-4 mx-auto">
@@ -49,11 +62,8 @@ const AdminUsers = () => {
                   <thead>
                     <tr className="text-left">
                       <TableHeader label="Id" />
-                      <TableHeader label="性" />
-                      <TableHeader label="名" />
-                      <TableHeader label="属性" />
+                      <TableHeader label="名前" />
                       <TableHeader label="メールアドレス" />
-                      <th className="pb-3.5 border-b border-neutral-100" />
                     </tr>
                   </thead>
                   <tbody>
@@ -72,8 +82,6 @@ const AdminUsers = () => {
           </div>
         </div>
       </section>
-    </HelmetProvider>
+    </React.Fragment>
   );
-};
-
-export default memo(AdminUsers);
+}
