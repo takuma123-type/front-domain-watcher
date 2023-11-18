@@ -1,13 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link ,useNavigate} from "react-router-dom";
+import { SessionsRepository } from "../../../infrastructure/repositories/SessionsRepository";
+import {
+  FailLogOutError
+} from "../../../infrastructure/repositories";
+import {
+  DeleteSessionInput,
+  DeleteSessionUsecase,
+} from "../../../usecases/DeleteSessionUsecase";
 
 const Header: React.FC = () => {
+  const navigate = useNavigate();
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const location = useLocation();
 
   const toggleMenu = () => {
     setMenuVisible((prevVisible) => !prevVisible);
   };
+
+  const onLogout = async () => {
+    console.log("logout")
+    try {
+      const input = new DeleteSessionInput();
+      const sessionRepository = new SessionsRepository();
+      const usecase = new DeleteSessionUsecase(input, sessionRepository);
+      await usecase.delete();
+      navigate("/sign_in");
+    } catch (error) {
+      if (error instanceof FailLogOutError) {
+        console.log('Logoutに失敗しました');
+      }
+      console.error(error);
+    }
+  }
 
   useEffect(() => {
     const burger = document.querySelector(".navbar-burger");
@@ -122,12 +147,10 @@ const Header: React.FC = () => {
               </Link>
             </li>
             <li className="mr-10">
-              <Link
-                className={`text-sm font-medium ${isActive("/logout")}`}
-                to="/logout"
-              >
-                ログアウト
-              </Link>
+              <button className="flex flex-wrap items-center" onClick={onLogout}>
+                <img className="mr-3" src="dashy-assets/images/list-unordered-3-rec.svg" alt="" />
+                <p className="hover:text-neutral-700 font-medium">ログアウト</p>
+              </button>
             </li>
           </ul>
         </div>
@@ -252,16 +275,10 @@ const Header: React.FC = () => {
                 </Link>
               </div>
               <div className="w-auto p-2.5">
-                <Link className="flex flex-wrap items-center" to="/logout">
-                  <img
-                    className="mr-3"
-                    src="dashy-assets/images/list-unordered-3-rec.svg"
-                    alt=""
-                  />
-                  <p className="hover:text-neutral-700 font-medium">
-                    ログアウト
-                  </p>
-                </Link>
+                <button className="flex flex-wrap items-center" onClick={onLogout}>
+                  <img className="mr-3" src="dashy-assets/images/list-unordered-3-rec.svg" alt="" />
+                  <p className="hover:text-neutral-700 font-medium">ログアウト</p>
+                </button>
               </div>
             </div>
           </div>

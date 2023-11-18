@@ -4,3 +4,4 @@ export class UnknownError extends Error {}
 export class InvlalidSessionTokenError extends Error {}
 export class InvalidParameterError extends Error {}
 export class FailSignUpError extends Error {}
+export class FailLogOutError extends Error {}

@@ -1,16 +1,16 @@
-import axios from "axios";
 import { API } from "../API";
 import { UnauthorizedError, UnknownError } from "./errors";
+import { axiosClient } from "../axiosClient";
 
 export class JobSeekersRepository {
   async fetch(sessionToken: string): Promise<any> {
     try {
-      const response = await axios.get(API.createURL(API.URL.job_seekers()), {
+      const response = await axiosClient.get(API.createURL(API.URL.job_seekers()),
+      {
+        withCredentials: true,
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
-          "X-SOEUR-ADMIN-API-Key": "hogehoge",
-          Authorization: `Bearer ${sessionToken}`,
+          "Content-Type": "application/json"
         },
       });
 
@@ -31,14 +31,13 @@ export class JobSeekersRepository {
 
   async getJobSeeker(sessionToken: string, userId: string): Promise<any> {
     try {
-      const response = await axios.get(
+      const response = await axiosClient.get(
         API.createURL(API.URL.job_seeker({ userId: userId })),
         {
+          withCredentials: true,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
-            "X-SOEUR-ADMIN-API-Key": "hogehoge",
-            Authorization: `Bearer ${sessionToken}`,
           },
         }
       );
