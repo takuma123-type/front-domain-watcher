@@ -12,6 +12,7 @@ interface User {
   id: number;
   code: string;
   name: string;
+  cert: boolean;
   careers: Career[];
 }
 
@@ -67,6 +68,12 @@ const DetailsView: React.FC<Props> = ({ user }) => {
             <h4 className="text-sm text-gray-500">ユーザコード</h4>
           </div>
           <span className="text-sm">{user.code}</span>
+        </div>
+        <div className="flex mb-4 justify-between items-center">
+          <div className="flex items-center">
+            <h4 className="text-sm text-gray-500">本人確認</h4>
+          </div>
+          <span className="text-sm">{user.cert ? "承認" : "拒否"}</span>
         </div>
         {user.careers.map((career, index) => (
           <div key={index}>
