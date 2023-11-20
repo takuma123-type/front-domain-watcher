@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 import Header from "../molecules/shared/Header";
 import IndustryRow from "../molecules/industries/IndustryRow";
 import CreateButton from "../atoms/Buttons/CreateButton";
@@ -7,6 +8,7 @@ import Pagination from "../organisms/shared/Pagination";
 import { IndustriesRepository } from "../../infrastructure/repositories/IndustriesRepository";
 import { FetchIndustryUsecase } from "../../usecases/FetchIndustriesUsecase";
 import { IndustryItem } from "../../models/presentation/IndustryItem";
+import { UnauthorizedError, UnknownError } from "../../infrastructure/repositories/errors";
 
 const meta = {
   title: "",
@@ -17,6 +19,7 @@ const meta = {
 };
 
 export default function Industries() {
+  const navigate = useNavigate();
   const [industries, setIndustries] = useState<IndustryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -46,6 +49,10 @@ export default function Industries() {
         const industries = await fetchIndustriesUsecase.fetch();
         setIndustries(industries.industries);
       } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          console.log('UnauthorizedError')
+          navigate(`/sign_in`);
+        }
         console.error(error);
       }
     }

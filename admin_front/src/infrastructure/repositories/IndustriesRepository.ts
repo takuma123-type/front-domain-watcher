@@ -1,4 +1,4 @@
-import axios from "axios";
+import {axiosClient} from '../axiosClient'
 import { API } from "../API";
 import { UnauthorizedError, UnknownError } from "./errors";
 
@@ -14,14 +14,17 @@ export class IndustriesRepository {
   }
   async fetch(sessionToken: string): Promise<any> {
     try {
-      const response = await axios.get(API.createURL(API.URL.industries()), {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "X-SOEUR-ADMIN-API-Key": "hogehoge",
-          Authorization: `Bearer ${sessionToken}`,
-        },
-      });
+      const response = await axiosClient.get(
+        API.createURL(API.URL.industries()),
+        {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "withCredentials": true
+          },
+        }
+      );
       console.log("API response:", response);
 
       if (response.status === 200) {
@@ -29,11 +32,16 @@ export class IndustriesRepository {
       }
 
       if (response.status === 401) {
+        console.log('UnauthorizedError');
         throw new UnauthorizedError();
       }
 
       throw new UnknownError();
     } catch (error) {
+      if (error instanceof UnauthorizedError){
+        console.log('UnauthorizedError');
+        throw new UnauthorizedError();
+      }
       console.error(error);
       throw error;
     }
@@ -52,11 +60,12 @@ export class IndustriesRepository {
 
   static async createIndustry(industry: CreateIndustryParams) {
     try {
-      const response = await axios.post(
+      const response = await axiosClient.post(
         API.createURL(API.URL.industryCreate()),
         JSON.stringify(industry),
         {
           method: "POST",
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
           },
@@ -79,10 +88,11 @@ export class IndustriesRepository {
 
   static async updateIndustry(industry: CreateIndustryParams) {
     try {
-      const response = await axios.put(
+      const response = await axiosClient.put(
         API.createURL(API.URL.industryUpdate({ industryId: industry.id })),
         industry,
         {
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
           },
@@ -107,9 +117,10 @@ export class IndustriesRepository {
 
   static async deleteIndustry(industry: CreateIndustryParams) {
     try {
-      const response = await axios.delete(
+      const response = await axiosClient.delete(
         API.createURL(API.URL.industryDelete({ industryId: industry.id })),
         {
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
           },

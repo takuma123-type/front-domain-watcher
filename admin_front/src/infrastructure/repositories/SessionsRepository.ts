@@ -1,4 +1,4 @@
-import axios from "axios";
+import {axiosClient} from '../axiosClient'
 import { API } from "../API";
 import { UnauthorizedError, UnknownError } from "./errors";
 
@@ -14,17 +14,22 @@ export class SessionsRepository {
       password
     });
   }
+
+  async delete(): Promise<void> {
+    await SessionsRepository.deleteSession();
+  }
+
   static create(arg0: { name: string }) {
     throw new Error("Method not implemented.");
   }
 
   static async createSession(session: CreateSessionParams) {
     try {
-      const response = await axios.post(
+      const response = await axiosClient.post(
         API.createURL(API.URL.sign_up()),
         JSON.stringify(session),
         {
-          method: "POST",
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
           },
@@ -45,4 +50,33 @@ export class SessionsRepository {
       throw error;
     }
   }
+
+  static async deleteSession() {
+    try {
+      const response = await axiosClient.post(
+        API.createURL(API.URL.log_out()),
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response);
+      if (response.status === 200) {
+        return response.data;
+      }
+
+      if (response.status === 401) {
+        throw new UnauthorizedError();
+      }
+
+      throw new UnknownError();
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
 }

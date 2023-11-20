@@ -1,18 +1,20 @@
-import axios from "axios";
 import { API } from "../API";
+import { axiosClient } from "../axiosClient";
 import { UnauthorizedError, UnknownError } from "./errors";
 
 export class UsersRepository {
   async fetch(sessionToken: string): Promise<any> {
     try {
-      const response = await axios.get(API.createURL(API.URL.users()), {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "X-SOEUR-ADMIN-API-Key": "hogehoge",
-          Authorization: `Bearer ${sessionToken}`,
-        },
-      });
+      const response = await axiosClient.get(
+        API.createURL(API.URL.users()),
+        {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
       // console.log("API response:", response);
 
       if (response.status === 200) {
@@ -32,14 +34,13 @@ export class UsersRepository {
 
   async fetchUser(sessionToken: string, userId: string): Promise<any> {
     try {
-      const response = await axios.get(
+      const response = await axiosClient.get(
         API.createURL(API.URL.user({ userId: userId })),
         {
+          "withCredentials": true,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
-            "X-SOEUR-ADMIN-API-Key": "hogehoge",
-            Authorization: `Bearer ${sessionToken}`,
           },
         }
       );

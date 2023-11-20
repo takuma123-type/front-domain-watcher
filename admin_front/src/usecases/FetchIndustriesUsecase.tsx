@@ -43,7 +43,9 @@ export class FetchIndustryUsecase {
     } catch (e) {
       console.error("Error in FetchIndustryUsecase.fetch:", e);
       if (e instanceof UnauthorizedError) {
+        console.log("UnauthorizedError")
         Storage.clear();
+        throw new UnauthorizedError()
       }
       throw e;
     }

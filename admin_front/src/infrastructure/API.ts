@@ -27,6 +27,7 @@ export class API {
       `${this.BASE_PATH}/job_seekers/${params.userId}`,
     sign_up: () => `${this.BASE_PATH}/log_in`,
     admin_users: () => `${this.BASE_PATH}/admin_users`,
+    log_out: () => `${this.BASE_PATH}/log_out`,
   };
 
   public static createURL(url: string): string {
