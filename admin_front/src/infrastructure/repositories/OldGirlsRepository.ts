@@ -6,14 +6,16 @@ export class OldGirlsRepository {
   static verifyOldGirl: any;
   async fetch(sessionToken: string): Promise<any> {
     try {
-      const response = await axiosClient.get(API.createURL(API.URL.old_girls()),
-      {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        },
-      });
+      const response = await axiosClient.get(
+        API.createURL(API.URL.old_girls()),
+        {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.status === 200) {
         return response;
@@ -77,7 +79,7 @@ export class OldGirlsRepository {
       console.log("Body:", body);
       console.log("Headers:", headers);
 
-      const response = await axios.post(url, body, { headers: headers });
+      const response = await axiosClient.post(url, body, { headers: headers });
 
       console.log("Response:", response);
 
