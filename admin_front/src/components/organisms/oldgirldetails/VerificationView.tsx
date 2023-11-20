@@ -1,6 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
+import { OldGirlsRepository } from "../../../infrastructure/repositories/OldGirlsRepository";
+import { useParams } from "react-router-dom";
 
-function VerificationView() {
+interface VerificationViewProps {
+  oldGirlId: number;
+}
+
+const VerificationView: React.FC<VerificationViewProps> = ({ oldGirlId }) => {
+  const [isVerified, setIsVerified] = useState<boolean | null>(null);
+  const oldGirlsRepository = new OldGirlsRepository();
+
+  const sendVerificationRequest = async (is_verified: boolean) => {
+    setIsVerified(is_verified);
+    try {
+      await oldGirlsRepository.verifyOldGirl(
+        "sessionToken",
+        oldGirlId,
+        is_verified
+      );
+      console.log(`Sending verification: ${is_verified}`);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="max-w-xs py-16 mx-auto text-center">
       <div className="flex justify-center space-x-4 mb-8">
@@ -16,15 +40,21 @@ function VerificationView() {
         />
       </div>
       <div className="flex justify-center space-x-4">
-        <button className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700">
+        <button
+          className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+          onClick={() => sendVerificationRequest(true)}
+        >
           承認
         </button>
-        <button className="px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700">
+        <button
+          className="px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700"
+          onClick={() => sendVerificationRequest(false)}
+        >
           拒否
         </button>
       </div>
     </div>
   );
-}
+};
 
 export default VerificationView;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
 import DetailsView from "../organisms/oldgirldetails/DetailsView";
+import VerificationView from "../organisms/oldgirldetails/VerificationView";
 import { useParams } from "react-router-dom";
 import { GetOldGirlDetailUsecase } from "../../usecases/GetOldGirlDetailUsecase";
 import { OldGirlsRepository } from "../../infrastructure/repositories/OldGirlsRepository";
@@ -16,9 +17,11 @@ const meta = {
 };
 
 export default function OldGirlDetails() {
+  const [isVerificationView, setIsVerificationView] = useState<boolean>(false);
   const [oldGirlOutput, setOldGirlsDetailOutput] =
     useState<OldGirlDetailItem | null>(null);
   const { id = "" } = useParams<{ id?: string }>();
+  const oldGirlIdNumber = Number(id);
 
   useEffect(() => {
     const oldGirlsRepository = new OldGirlsRepository();
@@ -35,6 +38,14 @@ export default function OldGirlDetails() {
         console.error(error);
       });
   }, [id]);
+
+  const handleDetailsClick = () => {
+    setIsVerificationView(false);
+  };
+
+  const handleVerificationClick = () => {
+    setIsVerificationView(true);
+  };
 
   return (
     <React.Fragment>
@@ -55,7 +66,37 @@ export default function OldGirlDetails() {
                   </h3>
                 </div>
               </div>
-              <DetailsView user={oldGirlOutput} />
+              <div className="flex flex-wrap border-b -m-1">
+                <div
+                  onClick={handleDetailsClick}
+                  className={`flex-1 p-1 text-center border ${
+                    isVerificationView
+                      ? "bg-gray-100 text-neutral-400"
+                      : "bg-blue-500 text-white"
+                  }`}
+                >
+                  <button className="inline-block pb-3 text-sm font-medium">
+                    詳細情報
+                  </button>
+                </div>
+                <div
+                  onClick={handleVerificationClick}
+                  className={`flex-1 p-1 text-center border ${
+                    isVerificationView
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 text-neutral-400"
+                  }`}
+                >
+                  <button className="inline-block pb-3 text-sm font-medium">
+                    本人確認
+                  </button>
+                </div>
+              </div>
+              {isVerificationView ? (
+                <VerificationView oldGirlId={oldGirlIdNumber} />
+              ) : (
+                <DetailsView user={oldGirlOutput} />
+              )}
             </div>
           </div>
         </section>

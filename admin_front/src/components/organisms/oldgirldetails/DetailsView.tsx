@@ -88,10 +88,10 @@ const DetailsView: React.FC<Props> = ({ user }) => {
             </div>
             <div className="flex mb-4 justify-between items-center">
               <div className="flex items-center">
-                <h4 className="text-sm text-gray-500">利用開始日</h4>
+                <h4 className="text-sm text-gray-500">在籍期間</h4>
               </div>
               <div>
-                <span className="text-sm">{career.start_date}</span>
+                <span className="text-sm">{career.start_date}年</span>
               </div>
             </div>
             <div className="flex mb-4 justify-between items-center">
