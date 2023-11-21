@@ -23,11 +23,11 @@ interface Props {
 const getCertStatus = (cert: boolean | null) => {
   switch (cert) {
     case null:
-      return "未登録";
+      return { text: "未登録", className: "text-gray-500 bg-gray-200" };
     case false:
-      return "拒否";
+      return { text: "拒否", className: "text-red-500 bg-red-200" };
     case true:
-      return "承認";
+      return { text: "承認", className: "text-green-500 bg-green-200" };
   }
 };
 
@@ -37,6 +37,7 @@ const DetailsView: React.FC<Props> = ({ user }) => {
   if (!user) {
     return null;
   }
+  const certStatus = getCertStatus(user.cert);
 
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
@@ -84,7 +85,9 @@ const DetailsView: React.FC<Props> = ({ user }) => {
           <div className="flex items-center">
             <h4 className="text-sm text-gray-500">本人確認</h4>
           </div>
-          <span className="text-sm">{getCertStatus(user.cert)}</span>
+          <span className={`text-sm ${certStatus.className}`}>
+            {certStatus.text}
+          </span>
         </div>
         {user.careers.map((career, index) => (
           <div key={index}>
