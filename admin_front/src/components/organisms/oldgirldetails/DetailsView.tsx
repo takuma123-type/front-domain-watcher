@@ -20,6 +20,17 @@ interface Props {
   user: User | null;
 }
 
+const getCertStatus = (cert: boolean | null) => {
+  switch (cert) {
+    case null:
+      return "未登録";
+    case false:
+      return "拒否";
+    case true:
+      return "承認";
+  }
+};
+
 const DetailsView: React.FC<Props> = ({ user }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -73,7 +84,7 @@ const DetailsView: React.FC<Props> = ({ user }) => {
           <div className="flex items-center">
             <h4 className="text-sm text-gray-500">本人確認</h4>
           </div>
-          <span className="text-sm">{user.cert ? "承認" : "拒否"}</span>
+          <span className="text-sm">{getCertStatus(user.cert)}</span>
         </div>
         {user.careers.map((career, index) => (
           <div key={index}>
