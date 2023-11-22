@@ -1,4 +1,3 @@
-// index.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
@@ -6,15 +5,13 @@ import Header from "../molecules/shared/Header";
 import Pagination from "../organisms/shared/Pagination";
 import TableHeader from "../molecules/users/TableHeader";
 import TableRow from "../molecules/users/TableRow";
-import { Storage } from "../../infrastructure/Storage";
 import { UsersRepository } from "../../infrastructure/repositories/UsersRepository";
 import {
   FetchUsersUsecase,
   FetchUsersOutput,
 } from "../../usecases/FetchUsersUsecase";
 import { UserItem } from "../../models/presentation/UserItem";
-import { GetUserDetailUsecase } from "../../usecases/GetUserDetailUsecase";
-import { GetUserDetailOutput } from "../../usecases/GetUserDetailUsecase";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
 
 const meta = {
   title: "",
@@ -27,16 +24,7 @@ const meta = {
 export default function Users() {
   const navigate = useNavigate();
   const handleCellClick = async (userId: number) => {
-    const usersRepository = new UsersRepository();
-    const getUserDetailUsecase = new GetUserDetailUsecase(usersRepository);
-
-    try {
-      const userDetailOutput = await getUserDetailUsecase.fetch(String(userId));
-      console.log("User detail item:", userDetailOutput.user);
-      navigate(`/users/details/${userId}`);
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
+    navigate(`/users/${userId}`);
   };
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -49,8 +37,7 @@ export default function Users() {
   const [currentUsers, setCurrentUsers] = useState<UserItem[]>([]);
 
   const [users, setUsers] = useState<UserItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const usersRepository = new UsersRepository();
     const fetchUsersUsecase = new FetchUsersUsecase(usersRepository);
@@ -59,10 +46,11 @@ export default function Users() {
         const output: FetchUsersOutput = await fetchUsersUsecase.fetch();
         const usersCell = output.users;
         setUsers(usersCell);
-        // console.log("usersCell:", usersCell);
-      } catch (err) {
-        console.error(err);
-        setError("データの取得に失敗しました。");
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          console.log('UnauthorizedError')
+          navigate(`/sign_in`);
+        }
       }
     };
     fetchUsers();

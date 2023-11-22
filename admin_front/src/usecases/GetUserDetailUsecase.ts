@@ -1,4 +1,3 @@
-import { Storage } from "../infrastructure/Storage";
 import {
   UsersRepository,
   UnauthorizedError,
@@ -20,12 +19,9 @@ export class GetUserDetailUsecase {
     this.usersRepository = usersRepository;
   }
 
-  async fetch(userId: string): Promise<GetUserDetailOutput> {
-    const sessionToken = Storage.restoreSessionToken() || "temporaryToken";
-
+  async get(userId: string): Promise<GetUserDetailOutput> {
     try {
-      const response = await this.usersRepository.fetchUser(
-        sessionToken,
+      const response = await this.usersRepository.get(
         userId
       );
       const user = new UserDetailItem({
@@ -42,10 +38,10 @@ export class GetUserDetailUsecase {
       });
       return new GetUserDetailOutput(user);
     } catch (e) {
-      console.error("Error in GetUserDetailUsecase.fetch:", e);
       if (e instanceof UnauthorizedError) {
-        Storage.clear();
+        throw new UnauthorizedError();
       }
+      console.error("Error in GetUserDetailUsecase.get:", e);
       throw e;
     }
   }

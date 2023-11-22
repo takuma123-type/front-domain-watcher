@@ -1,6 +1,4 @@
-import { Storage } from "../infrastructure/Storage";
 import {
-  InvlalidSessionTokenError,
   UsersRepository,
   UnauthorizedError,
 } from "../infrastructure/repositories";
@@ -22,10 +20,8 @@ export class FetchUsersUsecase {
   }
 
   async fetch(): Promise<FetchUsersOutput> {
-    const sessionToken = Storage.restoreSessionToken() || "temporaryToken";
-
     try {
-      const response = await this.usersRepository.fetch(sessionToken);
+      const response = await this.usersRepository.fetch();
       const users = response.data.results.map(
         (user: any) =>
           new UserItem({
@@ -38,10 +34,10 @@ export class FetchUsersUsecase {
       );
       return new FetchUsersOutput(users || []);
     } catch (e) {
-      console.error("Error in FetchUsersUsecase.fetch:", e);
       if (e instanceof UnauthorizedError) {
-        Storage.clear();
+        throw new UnauthorizedError();
       }
+      console.error("Error in FetchUsersUsecase.fetch:", e);
       throw e;
     }
   }
