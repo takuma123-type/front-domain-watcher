@@ -3,7 +3,7 @@ import { axiosClient } from "../axiosClient";
 import { UnauthorizedError, UnknownError } from "./errors";
 
 export class UsersRepository {
-  async fetch(sessionToken: string): Promise<any> {
+  async fetch(): Promise<any> {
     try {
       const response = await axiosClient.get(
         API.createURL(API.URL.users()),
@@ -15,24 +15,21 @@ export class UsersRepository {
           },
         }
       );
-      // console.log("API response:", response);
 
       if (response.status === 200) {
         return response;
       }
 
-      if (response.status === 401) {
-        throw new UnauthorizedError();
-      }
-
       throw new UnknownError();
     } catch (error) {
-      console.error(error);
+      if (error instanceof UnauthorizedError){
+        throw new UnauthorizedError();
+      }
       throw error;
     }
   }
 
-  async fetchUser(sessionToken: string, userId: string): Promise<any> {
+  async get(userId: string): Promise<any> {
     try {
       const response = await axiosClient.get(
         API.createURL(API.URL.user({ userId: userId })),
@@ -44,19 +41,16 @@ export class UsersRepository {
           },
         }
       );
-      // console.log("API response userId:", response);
 
       if (response.status === 200) {
         return response;
       }
 
-      if (response.status === 401) {
-        throw new UnauthorizedError();
-      }
-
       throw new UnknownError();
     } catch (error) {
-      console.error(error);
+      if (error instanceof UnauthorizedError){
+        throw new UnauthorizedError();
+      }
       throw error;
     }
   }

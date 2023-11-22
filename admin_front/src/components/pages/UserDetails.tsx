@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 import Header from "../molecules/shared/Header";
 import DetailsView from "../organisms/userdetails/DetailsView";
 import VerificationView from "../organisms/userdetails/VerificationView";
 import { useParams } from "react-router-dom";
 import { GetUserDetailUsecase } from "../../usecases/GetUserDetailUsecase";
+import { GetUserDetailOutput } from "../../usecases/GetUserDetailUsecase";
 import { UsersRepository } from "../../infrastructure/repositories";
 import { UserDetailItem } from "../../models/presentation/UserDetailItem";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
 
 const meta = {
   title: "ユーザ詳細情報",
@@ -17,6 +20,7 @@ const meta = {
 };
 
 export default function UserDetails() {
+  const navigate = useNavigate();
   const [isVerificationView, setIsVerificationView] = useState<boolean>(false);
   const [userDetailOutput, setUserDetailOutput] =
     useState<UserDetailItem | null>(null);
@@ -25,15 +29,17 @@ export default function UserDetails() {
   useEffect(() => {
     const usersRepository = new UsersRepository();
     const getUserDetailUsecase = new GetUserDetailUsecase(usersRepository);
-
-    getUserDetailUsecase
-      .fetch(id)
-      .then((output) => {
+    const getUser = async () => {
+      try {
+        const output: GetUserDetailOutput = await getUserDetailUsecase.get(id);
         setUserDetailOutput(output.user);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          navigate(`/sign_in`);
+        }
+      }
+    };
+    getUser()
   }, [id]);
 
   const handleDetailsClick = () => {

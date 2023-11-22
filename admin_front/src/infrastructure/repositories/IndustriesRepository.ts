@@ -93,6 +93,7 @@ export class IndustriesRepository {
         industry,
         {
           withCredentials: true,
+          method: 'PUT',
           headers: {
             "Content-Type": "application/json",
           },

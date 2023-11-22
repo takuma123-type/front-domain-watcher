@@ -32,7 +32,7 @@ function App(): JSX.Element {
       <Route path="/users/details" element={<UserDetails />} />
       <Route path="/sign_in" element={<SignIn />} />
       <Route path="/admin_users" element={<AdminUsers />} />
-      <Route path="/users/details/:id" element={<UserDetails />} />
+      <Route path="/users/:id" element={<UserDetails />} />
       <Route path="/old_girls" element={<OldGirls />} />
       <Route path="/old_girls/:id" element={<OldGirlDetails />} />
       <Route path="/job_seekers" element={<JobSeekers />} />
