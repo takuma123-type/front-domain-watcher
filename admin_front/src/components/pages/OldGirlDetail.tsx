@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
+import { useNavigate } from "react-router-dom";
 import DetailsView from "../organisms/oldgirldetails/DetailsView";
 import VerificationView from "../organisms/oldgirldetails/VerificationView";
 import { useParams } from "react-router-dom";
 import { GetOldGirlDetailUsecase } from "../../usecases/GetOldGirlDetailUsecase";
+import { GetOldGirlDetailOutput } from "../../usecases/GetOldGirlDetailUsecase";
+import { VerifyOldGirlInput } from "../../usecases/VerifyOldGirlUsecase";
+import { VerifyOldGirlUsecase } from "../../usecases/VerifyOldGirlUsecase";
+import { VerifyOldGirlOutput } from "../../usecases/VerifyOldGirlUsecase";
 import { OldGirlsRepository } from "../../infrastructure/repositories/OldGirlsRepository";
 import { OldGirlDetailItem } from "../../models/presentation/OldGirlDetailItem";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
 
 const meta = {
   title: "OG詳細情報",
@@ -17,26 +23,49 @@ const meta = {
 };
 
 export default function OldGirlDetails() {
+  const navigate = useNavigate();
   const [isVerificationView, setIsVerificationView] = useState<boolean>(false);
   const [oldGirlOutput, setOldGirlsDetailOutput] =
     useState<OldGirlDetailItem | null>(null);
   const { id = "" } = useParams<{ id?: string }>();
   const oldGirlIdNumber = Number(id);
 
-  useEffect(() => {
+  const handleVerificationStatusChange = async (isVerified: boolean) => {
+    const input = new VerifyOldGirlInput({
+      userId: oldGirlIdNumber,
+      is_verified: isVerified,
+    });
     const oldGirlsRepository = new OldGirlsRepository();
-    const getOldGirlDetailUsecase = new GetOldGirlDetailUsecase(
+    const usecase = new VerifyOldGirlUsecase(
+      input,
       oldGirlsRepository
     );
+    try {
+      await usecase.verify();
+      window.location.reload();
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        console.log('UnauthorizedError')
+        navigate(`/sign_in`);
+      }
+      console.error(error);
+    }
+  };
 
-    getOldGirlDetailUsecase
-      .get(id)
-      .then((output) => {
+  useEffect(() => {
+    const oldGirlsRepository = new OldGirlsRepository();
+    const getOldGirlDetailUsecase = new GetOldGirlDetailUsecase(oldGirlsRepository);
+    const getOldGirl = async () => {
+      try {
+        const output: GetOldGirlDetailOutput = await getOldGirlDetailUsecase.get(id);
         setOldGirlsDetailOutput(output.user);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          navigate(`/sign_in`);
+        }
+      }
+    };
+    getOldGirl()
   }, [id]);
 
   const handleDetailsClick = () => {
@@ -93,7 +122,7 @@ export default function OldGirlDetails() {
                 </div>
               </div>
               {isVerificationView ? (
-                <VerificationView oldGirlId={oldGirlIdNumber} />
+                <VerificationView onVerificationStatusChange={handleVerificationStatusChange} />
               ) : (
                 <DetailsView user={oldGirlOutput} />
               )}

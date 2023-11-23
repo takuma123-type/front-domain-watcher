@@ -1,28 +1,12 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { OldGirlsRepository } from "../../../infrastructure/repositories/OldGirlsRepository";
 import { useParams } from "react-router-dom";
 
-interface VerificationViewProps {
-  oldGirlId: number;
-}
-
-const VerificationView: React.FC<VerificationViewProps> = ({ oldGirlId }) => {
+const VerificationView: React.FC<{ onVerificationStatusChange: (isVerified: boolean) => void }> = ({onVerificationStatusChange }) => {
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
-  const oldGirlsRepository = new OldGirlsRepository();
 
   const sendVerificationRequest = async (is_verified: boolean) => {
     setIsVerified(is_verified);
-    try {
-      await oldGirlsRepository.verifyOldGirl(
-        "sessionToken",
-        oldGirlId,
-        is_verified
-      );
-      console.log(`Sending verification: ${is_verified}`);
-    } catch (error) {
-      console.error(error);
-    }
+    onVerificationStatusChange(is_verified);
   };
 
   return (
