@@ -1,3 +1,4 @@
+import { UnauthorizedError } from "../infrastructure/repositories";
 import { IndustriesRepository } from "../infrastructure/repositories/IndustriesRepository";
 
 export class DeleteIndustryInput {
@@ -21,10 +22,17 @@ export class DeleteIndustryUsecase {
   }
 
   async delete(): Promise<void> {
-    IndustriesRepository.deleteIndustry({
-      id: this.input.id,
-      name: "",
-      note: "",
-    });
+
+    try {
+      IndustriesRepository.deleteIndustry({
+        id: this.input.id,
+        name: ""
+      });
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        throw new UnauthorizedError()
+      }
+      throw error;
+    }
   }
 }

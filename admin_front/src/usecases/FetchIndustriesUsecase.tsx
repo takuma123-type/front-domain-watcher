@@ -1,8 +1,4 @@
-import { Storage } from "../infrastructure/Storage";
-import {
-  InvlalidSessionTokenError,
-  UnauthorizedError,
-} from "../infrastructure/repositories";
+import { UnauthorizedError } from "../infrastructure/repositories";
 import { IndustriesRepository } from "../infrastructure/repositories/IndustriesRepository";
 import { IndustryItem } from "../models/presentation/IndustryItem";
 
@@ -26,11 +22,8 @@ export class FetchIndustryUsecase {
   }
 
   async fetch(): Promise<FetchIndustriesOutput> {
-    const sessionToken = Storage.restoreSessionToken() || "temporaryToken";
-
     try {
-      const response = await this.industriesRepository.fetch(sessionToken);
-      console.log("Full Fetched Response:", JSON.stringify(response, null, 2));
+      const response = await this.industriesRepository.fetch();
       const industries = response.data.results.map(
         (industry: any) =>
           new IndustryItem({
@@ -41,10 +34,7 @@ export class FetchIndustryUsecase {
       );
       return new FetchIndustriesOutput(industries || []);
     } catch (e) {
-      console.error("Error in FetchIndustryUsecase.fetch:", e);
       if (e instanceof UnauthorizedError) {
-        console.log("UnauthorizedError")
-        Storage.clear();
         throw new UnauthorizedError()
       }
       throw e;
