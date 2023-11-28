@@ -1,4 +1,3 @@
-// index.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
@@ -6,15 +5,13 @@ import Header from "../molecules/shared/Header";
 import Pagination from "../organisms/shared/Pagination";
 import TableHeader from "../molecules/job_seekers/TableHeader";
 import TableRow from "../molecules/job_seekers/TableRow";
-import { Storage } from "../../infrastructure/Storage";
 import { JobSeekersRepository } from "../../infrastructure/repositories/JobSeekersRepository";
 import {
   FetchJobSeekersUsecase,
   FetchJobSeekersOutput,
 } from "../../usecases/FetchJobSeekersUsecase";
 import { JobSeekerItem } from "../../models/presentation/JobSeekerItem";
-import { GetJobSeekerDetailUsecase } from "../../usecases/GetJobSeekerDetailUsecase";
-import { GetJobSeekerDetailOutput } from "../../usecases/GetJobSeekerDetailUsecase";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
 
 const meta = {
   title: "",
@@ -27,16 +24,7 @@ const meta = {
 export default function JobSeekers() {
   const navigate = useNavigate();
   const handleCellClick = async (userId: number) => {
-    const jobSeekersRepository = new JobSeekersRepository();
-    const getJobSeekerDetailUsecase = new GetJobSeekerDetailUsecase(
-      jobSeekersRepository
-    );
-
     try {
-      const jobSeekerDetailOutput = await getJobSeekerDetailUsecase.get(
-        String(userId)
-      );
-      console.log("User detail item:", jobSeekerDetailOutput.user);
       navigate(`/job_seekers/${userId}`);
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -53,8 +41,6 @@ export default function JobSeekers() {
   const [currentUsers, setCurrentUsers] = useState<JobSeekerItem[]>([]);
 
   const [jobSeekers, setJobSeekers] = useState<JobSeekerItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const jobSeekersRepository = new JobSeekersRepository();
     const fetchJobSeekersUsecase = new FetchJobSeekersUsecase(
@@ -62,14 +48,13 @@ export default function JobSeekers() {
     );
     const fetchJobSeekers = async () => {
       try {
-        const output: FetchJobSeekersOutput =
-          await fetchJobSeekersUsecase.fetch();
+        const output: FetchJobSeekersOutput = await fetchJobSeekersUsecase.fetch();
         const jobSeekersCell = output.jobSeekers;
         setJobSeekers(jobSeekersCell);
-        console.log("oldGirlsCell:", jobSeekersCell);
-      } catch (err) {
-        console.error(err);
-        setError("データの取得に失敗しました。");
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          navigate(`/sign_in`);
+        }
       }
     };
     fetchJobSeekers();

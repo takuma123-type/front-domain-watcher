@@ -1,6 +1,4 @@
-import { Storage } from "../infrastructure/Storage";
 import {
-  InvlalidSessionTokenError,
   UnauthorizedError,
 } from "../infrastructure/repositories";
 import { JobSeekersRepository } from "../infrastructure/repositories/JobSeekersRepository";
@@ -22,10 +20,8 @@ export class FetchJobSeekersUsecase {
   }
 
   async fetch(): Promise<FetchJobSeekersOutput> {
-    const sessionToken = Storage.restoreSessionToken() || "temporaryToken";
-
     try {
-      const response = await this.JobSeekersRepository.fetch(sessionToken);
+      const response = await this.JobSeekersRepository.fetch();
       const oldGirls = response.data.results.map(
         (oldGirl: any) =>
           new JobSeekerItem({
@@ -38,7 +34,7 @@ export class FetchJobSeekersUsecase {
     } catch (e) {
       console.error("Error in FetchOldGirlsUsecase.fetch:", e);
       if (e instanceof UnauthorizedError) {
-        Storage.clear();
+        throw new UnauthorizedError();
       }
       throw e;
     }

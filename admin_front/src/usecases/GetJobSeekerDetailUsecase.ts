@@ -1,4 +1,3 @@
-import { Storage } from "../infrastructure/Storage";
 import { UnauthorizedError } from "../infrastructure/repositories";
 import { JobSeekersRepository } from "../infrastructure/repositories/JobSeekersRepository";
 import { JobSeekerDetailItem } from "../models/presentation/JobSeekerDetailItem";
@@ -19,13 +18,8 @@ export class GetJobSeekerDetailUsecase {
   }
 
   async get(userId: string): Promise<GetJobSeekerDetailOutput> {
-    const sessionToken = Storage.restoreSessionToken() || "temporaryToken";
-
     try {
-      const response = await this.jobSeekersRepository.getJobSeeker(
-        sessionToken,
-        userId
-      );
+      const response = await this.jobSeekersRepository.get(userId);
       if (!response.data.results) {
         throw new Error("Results are undefined");
       }
@@ -40,7 +34,7 @@ export class GetJobSeekerDetailUsecase {
     } catch (e) {
       console.error("Error in GetJobSeekerDetailUsecase.fetch:", e);
       if (e instanceof UnauthorizedError) {
-        Storage.clear();
+        throw new UnauthorizedError();
       }
       throw e;
     }
