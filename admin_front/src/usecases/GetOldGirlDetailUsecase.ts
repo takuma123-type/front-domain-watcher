@@ -1,4 +1,3 @@
-import { Storage } from "../infrastructure/Storage";
 import { UnauthorizedError } from "../infrastructure/repositories";
 import { OldGirlsRepository } from "../infrastructure/repositories/OldGirlsRepository";
 import { OldGirlDetailItem } from "../models/presentation/OldGirlDetailItem";
@@ -19,13 +18,8 @@ export class GetOldGirlDetailUsecase {
   }
 
   async get(userId: string): Promise<GetOldGirlDetailOutput> {
-    const sessionToken = Storage.restoreSessionToken() || "temporaryToken";
-
     try {
-      const response = await this.oldGirlsRepository.getOldGirl(
-        sessionToken,
-        userId
-      );
+      const response = await this.oldGirlsRepository.get(userId);
       if (!response.data.results) {
         throw new Error("Results are undefined");
       }
@@ -38,10 +32,10 @@ export class GetOldGirlDetailUsecase {
       });
       return new GetOldGirlDetailOutput(user);
     } catch (e) {
-      console.error("Error in GetOldGirlDetailUsecase.fetch:", e);
       if (e instanceof UnauthorizedError) {
-        Storage.clear();
+        throw new UnauthorizedError();
       }
+      console.error("Error in GetOldGirlDetailUsecase.fetch:", e);
       throw e;
     }
   }

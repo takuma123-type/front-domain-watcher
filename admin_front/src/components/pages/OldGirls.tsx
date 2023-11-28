@@ -6,15 +6,13 @@ import Header from "../molecules/shared/Header";
 import Pagination from "../organisms/shared/Pagination";
 import TableHeader from "../molecules/old_girls/TableHeader";
 import TableRow from "../molecules/old_girls/TableRow";
-import { Storage } from "../../infrastructure/Storage";
 import { OldGirlsRepository } from "../../infrastructure/repositories/OldGirlsRepository";
 import {
   FetchOldGirlsUsecase,
   FetchOldGirlsOutput,
 } from "../../usecases/FetchOldGirlsUsecase";
 import { OldGirlItem } from "../../models/presentation/OldGirlItem";
-import { GetOldGirlDetailUsecase } from "../../usecases/GetOldGirlDetailUsecase";
-import { GetOldGirlDetailOutput } from "../../usecases/GetOldGirlDetailUsecase";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
 
 const meta = {
   title: "",
@@ -27,16 +25,7 @@ const meta = {
 export default function OldGirls() {
   const navigate = useNavigate();
   const handleCellClick = async (userId: number) => {
-    const oldGirlsRepository = new OldGirlsRepository();
-    const getOldGirlDetailUsecase = new GetOldGirlDetailUsecase(
-      oldGirlsRepository
-    );
-
     try {
-      const oldGirlDetailOutput = await getOldGirlDetailUsecase.get(
-        String(userId)
-      );
-      console.log("User detail item:", oldGirlDetailOutput.user);
       navigate(`/old_girls/${userId}`);
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -53,8 +42,7 @@ export default function OldGirls() {
   const [currentUsers, setCurrentUsers] = useState<OldGirlItem[]>([]);
 
   const [oldGirls, setOldGirls] = useState<OldGirlItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const oldGirlsRepository = new OldGirlsRepository();
     const fetchOldGirlsUsecase = new FetchOldGirlsUsecase(oldGirlsRepository);
@@ -63,11 +51,11 @@ export default function OldGirls() {
         const output: FetchOldGirlsOutput = await fetchOldGirlsUsecase.fetch();
         const oldGirlsCell = output.oldGirls;
         setOldGirls(oldGirlsCell);
-        console.log("oldGirlsCell:", oldGirlsCell);
-        // console.log("usersCell:", usersCell);
-      } catch (err) {
-        console.error(err);
-        setError("データの取得に失敗しました。");
+
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          navigate(`/sign_in`);
+        }
       }
     };
     fetchOldGirls();

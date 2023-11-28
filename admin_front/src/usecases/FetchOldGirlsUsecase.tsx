@@ -1,8 +1,4 @@
-import { Storage } from "../infrastructure/Storage";
-import {
-  InvlalidSessionTokenError,
-  UnauthorizedError,
-} from "../infrastructure/repositories";
+import { UnauthorizedError } from "../infrastructure/repositories";
 import { OldGirlsRepository } from "../infrastructure/repositories/OldGirlsRepository";
 import { OldGirlItem } from "../models/presentation/OldGirlItem"
 
@@ -22,10 +18,8 @@ export class FetchOldGirlsUsecase {
   }
 
   async fetch(): Promise<FetchOldGirlsOutput> {
-    const sessionToken = Storage.restoreSessionToken() || "temporaryToken";
-
     try {
-      const response = await this.OldGirlsRepository.fetch(sessionToken);
+      const response = await this.OldGirlsRepository.fetch();
       const oldGirls = response.data.results.map(
         (oldGirl: any) =>
           new OldGirlItem({
@@ -37,10 +31,10 @@ export class FetchOldGirlsUsecase {
       );
       return new FetchOldGirlsOutput(oldGirls || []);
     } catch (e) {
-      console.error("Error in FetchOldGirlsUsecase.fetch:", e);
       if (e instanceof UnauthorizedError) {
-        Storage.clear();
+        throw new UnauthorizedError();
       }
+      console.error("Error in FetchOldGirlsUsecase.fetch:", e);
       throw e;
     }
   }
