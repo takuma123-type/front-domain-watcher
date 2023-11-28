@@ -5,14 +5,13 @@ import { UnauthorizedError, UnknownError } from "./errors";
 interface CreateIndustryParams {
   id: number;
   name: string;
-  note: string;
 }
 
 export class IndustriesRepository {
-  static update(arg0: { id: string; name: string; note: string }) {
+  static update(arg0: { id: string; name: string; }) {
     throw new Error("Method not implemented.");
   }
-  async fetch(sessionToken: string): Promise<any> {
+  async fetch(): Promise<any> {
     try {
       const response = await axiosClient.get(
         API.createURL(API.URL.industries()),
@@ -20,26 +19,18 @@ export class IndustriesRepository {
           withCredentials: true,
           headers: {
             Accept: "application/json",
-            "Content-Type": "application/json",
-            "withCredentials": true
+            "Content-Type": "application/json"
           },
         }
       );
-      console.log("API response:", response);
 
       if (response.status === 200) {
         return response;
       }
 
-      if (response.status === 401) {
-        console.log('UnauthorizedError');
-        throw new UnauthorizedError();
-      }
-
       throw new UnknownError();
     } catch (error) {
       if (error instanceof UnauthorizedError){
-        console.log('UnauthorizedError');
         throw new UnauthorizedError();
       }
       console.error(error);
@@ -47,11 +38,10 @@ export class IndustriesRepository {
     }
   }
 
-  async save(id: number, name: string, note: string): Promise<void> {
+  async save(id: number, name: string): Promise<void> {
     await IndustriesRepository.createIndustry({
       id,
-      name,
-      note,
+      name
     });
   }
   static create(arg0: { name: string }) {
@@ -75,13 +65,11 @@ export class IndustriesRepository {
         return response.data;
       }
 
-      if (response.status === 401) {
-        throw new UnauthorizedError();
-      }
-
       throw new UnknownError();
     } catch (error) {
-      console.error(error);
+      if (error instanceof UnauthorizedError){
+        throw new UnauthorizedError();
+      }
       throw error;
     }
   }
@@ -103,17 +91,13 @@ export class IndustriesRepository {
       if (response.status >= 200 && response.status < 300) {
         return response.data;
       }
-      switch (response.status) {
-        case 400:
-          throw new response.data();
-        case 401:
-          throw new UnauthorizedError(response.data);
-        case 404:
-          throw new response.data();
-        default:
-          throw new UnknownError(response.data);
+
+    } catch (error) {
+      if (error instanceof UnauthorizedError){
+        throw new UnauthorizedError();
       }
-    } catch (error) {}
+      throw error;
+    }
   }
 
   static async deleteIndustry(industry: CreateIndustryParams) {
@@ -131,16 +115,11 @@ export class IndustriesRepository {
       if (response.status >= 200 && response.status < 300) {
         return response.data;
       }
-      switch (response.status) {
-        case 400:
-          throw new response.data();
-        case 401:
-          throw new UnauthorizedError(response.data);
-        case 404:
-          throw new response.data();
-        default:
-          throw new UnknownError(response.data);
+    } catch (error) {
+      if (error instanceof UnauthorizedError){
+        throw new UnauthorizedError();
       }
-    } catch (error) {}
+      throw error
+    }
   }
 }

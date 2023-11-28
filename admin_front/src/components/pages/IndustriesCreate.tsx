@@ -7,6 +7,7 @@ import {
   CreateIndustryInput,
   CreateIndustryUsecase,
 } from "../../usecases/CreateIndustryUsecase";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
 
 interface Meta {
   title: string;
@@ -27,7 +28,6 @@ const meta: Meta = {
 const IndustriesCreate: React.FC = () => {
   const navigate = useNavigate();
   const [industryName, setIndustryName] = useState("");
-  const [note, setNote] = useState("");
 
   useEffect(() => {
     const rootElement = document.getElementById("root");
@@ -48,14 +48,16 @@ const IndustriesCreate: React.FC = () => {
     try {
       const input = new CreateIndustryInput({
         id: 0,
-        name: industryName,
-        note: note,
+        name: industryName
       });
       const industryRepository = new IndustriesRepository();
       const usecase = new CreateIndustryUsecase(input, industryRepository);
       await usecase.create();
       navigate("/industries");
     } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        navigate(`/sign_in`);
+      }
       console.error(error);
     }
   };

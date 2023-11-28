@@ -1,15 +1,14 @@
+import { UnauthorizedError } from "../infrastructure/repositories";
 import { InvalidParameterError } from "../infrastructure/repositories";
 import { IndustriesRepository } from "../infrastructure/repositories/IndustriesRepository";
 
 export class CreateIndustryInput {
   readonly id: number;
   readonly name: string;
-  readonly note: string;
 
-  constructor(params: { id: number; name: string; note: string }) {
+  constructor(params: { id: number; name: string; }) {
     this.id = params.id;
     this.name = params.name;
-    this.note = params.note;
   }
 }
 export class CreateIndustryOutput {}
@@ -30,13 +29,18 @@ export class CreateIndustryUsecase {
     if (!this.validInput(this.input)) {
       return Promise.reject(new InvalidParameterError());
     }
-
-    await this.industryRepository.save(
-      this.input.id,
-      this.input.name,
-      this.input.note
-    );
-    return new CreateIndustryOutput();
+    try{
+      await this.industryRepository.save(
+        this.input.id,
+        this.input.name
+      );
+      return new CreateIndustryOutput();
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        throw new UnauthorizedError()
+      }
+      throw error;
+    }
   }
 
   private validInput(input: CreateIndustryInput): boolean {

@@ -1,14 +1,13 @@
+import { UnauthorizedError } from "../infrastructure/repositories";
 import { IndustriesRepository } from "../infrastructure/repositories/IndustriesRepository";
 
 export class UpdateIndustryInput {
   readonly id: number;
   readonly name: string;
-  readonly note: string;
 
-  constructor(params: { id: number; name: string; note: string }) {
+  constructor(params: { id: number; name: string; }) {
     this.id = params.id;
     this.name = params.name;
-    this.note = params.note;
   }
 }
 
@@ -25,10 +24,16 @@ export class UpdateIndustryUsecase {
   }
 
   async update(): Promise<void> {
-    IndustriesRepository.updateIndustry({
-      id: this.input.id,
-      name: this.input.name,
-      note: this.input.note,
-    });
+    try {
+      IndustriesRepository.updateIndustry({
+        id: this.input.id,
+        name: this.input.name
+      });
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        throw new UnauthorizedError()
+      }
+      throw error;
+    }
   }
 }

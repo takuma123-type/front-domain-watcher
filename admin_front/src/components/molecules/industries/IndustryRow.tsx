@@ -1,16 +1,6 @@
 import React, { useState } from "react";
 import DeleteModal from "../../organisms/shared/DeleteModal";
 import EditModal from "../../organisms/shared/EditModal";
-import { IndustriesRepository } from "../../../infrastructure/repositories/IndustriesRepository";
-import { IndustryItem } from "../../../models/presentation/IndustryItem";
-import {
-  UpdateIndustryUsecase,
-  UpdateIndustryInput,
-} from "../../../usecases/UpdateIndustryUsecase";
-import {
-  DeleteIndustryUsecase,
-  DeleteIndustryInput,
-} from "../../../usecases/DeleteIndustryUsecase";
 
 interface Industry {
   id: number;
@@ -19,11 +9,14 @@ interface Industry {
   note: string;
 }
 
-const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
+const IndustryRow: React.FC<{
+  industry: Industry
+  onDeleteConfirm: (id: number) => void;
+  onEditConfirm: (id: number, newName: string) => void;
+}> = ({ industry, onDeleteConfirm, onEditConfirm }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editValue, setEditValue] = useState(industry.name);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const handleDeleteClick = () => {
     setIsModalVisible(true);
@@ -47,42 +40,11 @@ const IndustryRow: React.FC<{ industry: Industry }> = ({ industry }) => {
   };
 
   const handleDeleteConfirm = async () => {
-    const deletedIndustry = new DeleteIndustryInput({
-      id: industry.id,
-    });
-    try {
-      const usecase = new DeleteIndustryUsecase(
-        deletedIndustry,
-        new IndustriesRepository()
-      );
-      await usecase.delete();
-      setIsModalVisible(false);
-      window.location.reload();
-    } catch (error) {
-      console.error(error);
-    }
+    onDeleteConfirm(industry.id)
   };
 
   const handleEditModalConfirm = async (value: string) => {
-    setEditValue(value);
-    setIsEditModalVisible(false);
-    console.log(`Edit ${industry.name} to ${value}`);
-
-    const updatedIndustry = new UpdateIndustryInput({
-      id: industry.id,
-      name: value,
-      note: industry.note,
-    });
-    try {
-      const usecase = new UpdateIndustryUsecase(
-        updatedIndustry,
-        new IndustriesRepository()
-      );
-      await usecase.update();
-      window.location.reload();
-    } catch (error) {
-      console.error(error);
-    }
+    onEditConfirm(industry.id, value)
   };
 
   return (

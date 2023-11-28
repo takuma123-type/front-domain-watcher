@@ -8,7 +8,15 @@ import Pagination from "../organisms/shared/Pagination";
 import { IndustriesRepository } from "../../infrastructure/repositories/IndustriesRepository";
 import { FetchIndustryUsecase } from "../../usecases/FetchIndustriesUsecase";
 import { IndustryItem } from "../../models/presentation/IndustryItem";
-import { UnauthorizedError, UnknownError } from "../../infrastructure/repositories/errors";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
+import {
+  UpdateIndustryUsecase,
+  UpdateIndustryInput,
+} from "../../usecases/UpdateIndustryUsecase";
+import {
+  DeleteIndustryUsecase,
+  DeleteIndustryInput,
+} from "../../usecases/DeleteIndustryUsecase";
 
 const meta = {
   title: "",
@@ -39,6 +47,48 @@ export default function Industries() {
     memoizedIndustries.length / industriesPerPage
   );
 
+  const handleEditConfirm = async (
+    industryId: number,
+    updatedName: string
+  ) => {
+    const updatedIndustry = new UpdateIndustryInput({
+      id: industryId,
+      name: updatedName,
+    });
+    try {
+      const usecase = new UpdateIndustryUsecase(
+        updatedIndustry,
+        new IndustriesRepository()
+      );
+      await usecase.update();
+      window.location.reload();
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        navigate(`/sign_in`);
+      }
+      console.error(error);
+    }
+  };
+
+  const handleDeleteConfirm = async (industryId: number) => {
+    const deletedIndustry = new DeleteIndustryInput({
+      id: industryId,
+    });
+    try {
+      const usecase = new DeleteIndustryUsecase(
+        deletedIndustry,
+        new IndustriesRepository()
+      );
+      await usecase.delete();
+      window.location.reload();
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        navigate(`/sign_in`);
+      }
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -50,7 +100,6 @@ export default function Industries() {
         setIndustries(industries.industries);
       } catch (error) {
         if (error instanceof UnauthorizedError) {
-          console.log('UnauthorizedError')
           navigate(`/sign_in`);
         }
         console.error(error);
@@ -149,6 +198,8 @@ export default function Industries() {
                             registeredUsers: industry.registeredUsers,
                             note: industry.note,
                           }}
+                          onEditConfirm={handleEditConfirm}
+                          onDeleteConfirm={handleDeleteConfirm}
                         />
                       ))}
                     </tbody>
