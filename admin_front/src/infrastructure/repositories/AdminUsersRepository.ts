@@ -1,16 +1,15 @@
-import axios from "axios";
+import {axiosClient} from '../axiosClient'
 import { API } from "../API";
 import { UnauthorizedError, UnknownError } from "./errors";
 
 export class AdminUsersRepository {
-  async fetch(sessionToken: string): Promise<any> {
+  async fetch(): Promise<any> {
     try {
-      const response = await axios.get(API.createURL(API.URL.admin_users()), {
+      const response = await axiosClient.get(API.createURL(API.URL.admin_users()), {
+        withCredentials: true,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "X-SOEUR-ADMIN-API-Key": "hogehoge",
-          Authorization: `Bearer ${sessionToken}`,
         },
       });
 
@@ -18,14 +17,12 @@ export class AdminUsersRepository {
         return response;
       }
 
-      if (response.status === 401) {
-        throw new UnauthorizedError();
-      }
-
       throw new UnknownError();
     } catch (error) {
-      console.error(error);
-      throw error;
+      if (error instanceof UnauthorizedError){
+        throw new UnauthorizedError();
+      }
+      throw error
     }
   }
 }
