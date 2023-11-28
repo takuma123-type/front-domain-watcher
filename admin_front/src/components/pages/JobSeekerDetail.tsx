@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import Header from "../molecules/shared/Header";
+import { useNavigate } from "react-router-dom";
 import DetailsView from "../organisms/jobseekerdetails/DetailsView";
 import { useParams } from "react-router-dom";
 import { GetJobSeekerDetailUsecase } from "../../usecases/GetJobSeekerDetailUsecase";
+import { GetJobSeekerDetailOutput } from "../../usecases/GetJobSeekerDetailUsecase";
 import { JobSeekersRepository } from "../../infrastructure/repositories/JobSeekersRepository";
 import { JobSeekerDetailItem } from "../../models/presentation/JobSeekerDetailItem";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
 
 const meta = {
   title: "求職者詳細情報",
@@ -16,6 +19,7 @@ const meta = {
 };
 
 export default function JobSeekerDetails() {
+  const navigate = useNavigate();
   const [jobSeekerOutput, setJobSeekersDetailOutput] =
     useState<JobSeekerDetailItem | null>(null);
   const { id = "" } = useParams<{ id?: string }>();
@@ -26,14 +30,17 @@ export default function JobSeekerDetails() {
       jobSeekersRepository
     );
 
-    getJobSeekerDetailUsecase
-      .get(id)
-      .then((output) => {
+    const getJobSeeker = async () => {
+      try {
+        const output: GetJobSeekerDetailOutput = await getJobSeekerDetailUsecase.get(id);
         setJobSeekersDetailOutput(output.user);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          navigate(`/sign_in`);
+        }
+      }
+    };
+    getJobSeeker()
   }, [id]);
 
   return (

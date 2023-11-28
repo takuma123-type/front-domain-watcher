@@ -3,7 +3,7 @@ import { UnauthorizedError, UnknownError } from "./errors";
 import { axiosClient } from "../axiosClient";
 
 export class JobSeekersRepository {
-  async fetch(sessionToken: string): Promise<any> {
+  async fetch(): Promise<any> {
     try {
       const response = await axiosClient.get(API.createURL(API.URL.job_seekers()),
       {
@@ -18,18 +18,16 @@ export class JobSeekersRepository {
         return response;
       }
 
-      if (response.status === 401) {
-        throw new UnauthorizedError();
-      }
-
       throw new UnknownError();
     } catch (error) {
-      console.error(error);
+      if (error instanceof UnauthorizedError){
+        throw new UnauthorizedError();
+      }
       throw error;
     }
   }
 
-  async getJobSeeker(sessionToken: string, userId: string): Promise<any> {
+  async get(userId: string): Promise<any> {
     try {
       const response = await axiosClient.get(
         API.createURL(API.URL.job_seeker({ userId: userId })),
@@ -45,13 +43,11 @@ export class JobSeekersRepository {
         return response;
       }
 
-      if (response.status === 401) {
-        throw new UnauthorizedError();
-      }
-
       throw new UnknownError();
     } catch (error) {
-      console.error(error);
+      if (error instanceof UnauthorizedError){
+        throw new UnauthorizedError();
+      }
       throw error;
     }
   }
