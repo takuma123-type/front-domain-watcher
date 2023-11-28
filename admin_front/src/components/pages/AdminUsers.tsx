@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 import Header from "../molecules/shared/Header";
 import TableHeader from "../molecules/admin_users/TableHeader";
 import TableRow from "../molecules/admin_users/TableRow";
@@ -7,6 +8,7 @@ import Pagination from "../organisms/shared/Pagination";
 import { AdminUsersRepository } from "../../infrastructure/repositories/AdminUsersRepository";
 import { FetchAdminUsersUsecase } from "../../usecases/FetchAdminUsersUsecase";
 import { AdminUserItem } from "../../models/presentation/AdminUserItem";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
 
 const meta = {
   title: "",
@@ -21,6 +23,7 @@ export default function AdminUsers() {
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [adminUsers, setAdminUsers] = useState<AdminUserItem[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const adminUsersRepository = new AdminUsersRepository();
@@ -32,7 +35,10 @@ export default function AdminUsers() {
         setAdminUsers(output.adminUsers);
         setTotalPages(Math.ceil(output.adminUsers.length / itemsPerPage));
       } catch (error) {
-        console.error(error);
+        if (error instanceof UnauthorizedError) {
+          navigate(`/sign_in`);
+        }
+        throw error;
       }
     };
 
