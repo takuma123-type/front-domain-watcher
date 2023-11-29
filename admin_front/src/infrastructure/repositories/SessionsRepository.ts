@@ -26,7 +26,7 @@ export class SessionsRepository {
   static async createSession(session: CreateSessionParams) {
     try {
       const response = await axiosClient.post(
-        API.createURL(API.URL.log_in()),
+        API.createURL(API.URL.sign_in()),
         JSON.stringify(session),
         {
           withCredentials: true,
