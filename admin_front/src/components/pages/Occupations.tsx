@@ -1,16 +1,22 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 import Header from "../molecules/shared/Header";
-import OccupationsData from "../../data/Occupations_data";
 import OccupationRow from "../molecules/occupations/OccupationRow";
 import CreateButton from "../atoms/Buttons/CreateButton";
 import Pagination from "../organisms/shared/Pagination";
-
-interface Occupation {
-  id: number;
-  name: string;
-  registrants: number;
-}
+import { OccupationsRepository } from "../../infrastructure/repositories/OccupationsRepository";
+import { FetchOccupationUsecase } from "../../usecases/FetchOccupationsUsecase";
+import { OccupationItem } from "../../models/presentation/OccupationItem";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
+import {
+  UpdateOccupationUsecase,
+  UpdateOccupationInput,
+} from "../../usecases/UpdateOccupationUsecase";
+import {
+  DeleteOccupationUsecase,
+  DeleteOccupationInput,
+} from "../../usecases/DeleteOccupationUsecase";
 
 const meta = {
   title: "",
@@ -20,31 +26,87 @@ const meta = {
   script: [],
 };
 
-const Occupations: React.FC = () => {
+export default function Occupations() {
+  const navigate = useNavigate();
+  const [occupations, setOccupations] = useState<OccupationItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const occupationsPerPage: number = 5;
+  const occupationsPerPage: number = 10;
 
-  const memoizedOccupationsData: Occupation[] = useMemo(() => {
-    return OccupationsData.filter((occupation: Occupation) =>
-      occupation.name.includes(searchQuery)
-    );
-  }, [searchQuery]);
+  const memoizedOccupations: OccupationItem[] = useMemo(() => {
+    return occupations.filter((occupation) => occupation.name.includes(searchQuery));
+  }, [occupations, searchQuery]);
 
   const indexOfLastOccupation: number = currentPage * occupationsPerPage;
-  const indexOfFirstOccupation: number =
-    indexOfLastOccupation - occupationsPerPage;
-  const currentOccupations: Occupation[] = memoizedOccupationsData.slice(
+  const indexOfFirstOccupation: number = indexOfLastOccupation - occupationsPerPage;
+  const currentOccupations: OccupationItem[] = memoizedOccupations.slice(
     indexOfFirstOccupation,
     indexOfLastOccupation
   );
   const totalPages: number = Math.ceil(
-    memoizedOccupationsData.length / occupationsPerPage
+    memoizedOccupations.length / occupationsPerPage
   );
 
-  const handlePageChange = (pageNumber: number): void => {
-    setCurrentPage(pageNumber);
+  const handleEditConfirm = async (
+    industryId: number,
+    updatedName: string
+  ) => {
+    const updatedOccupation = new UpdateOccupationInput({
+      id: industryId,
+      name: updatedName,
+    });
+    try {
+      const usecase = new UpdateOccupationUsecase(
+        updatedOccupation,
+        new OccupationsRepository()
+      );
+      await usecase.update();
+      window.location.reload();
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        navigate(`/sign_in`);
+      }
+      console.error(error);
+    }
   };
+
+  const handleDeleteConfirm = async (occupationId: number) => {
+    const deletedOccupation = new DeleteOccupationInput({
+      id: occupationId,
+    });
+    try {
+      const usecase = new DeleteOccupationUsecase(
+        deletedOccupation,
+        new OccupationsRepository()
+      );
+      await usecase.delete();
+      window.location.reload();
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        navigate(`/sign_in`);
+      }
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const occupationsRepository = new OccupationsRepository();
+        const fetchOccupationsUsecase = new FetchOccupationUsecase(
+          occupationsRepository
+        );
+        const occupations = await fetchOccupationsUsecase.fetch();
+        setOccupations(occupations.occupations);
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          navigate(`/sign_in`);
+        }
+        console.error(error);
+      }
+    }
+    fetchData();
+  }, []);
 
   return (
     <React.Fragment>
@@ -66,9 +128,7 @@ const Occupations: React.FC = () => {
                         type="text"
                         placeholder="職種検索"
                         value={searchQuery}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setSearchQuery(e.target.value)
-                        }
+                        onChange={(e) => setSearchQuery(e.target.value)}
                       />
                     </h3>
                   </div>
@@ -129,10 +189,17 @@ const Occupations: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {currentOccupations.map((occupation: Occupation) => (
+                      {currentOccupations.map((occupation: OccupationItem) => (
                         <OccupationRow
                           key={occupation.id}
-                          occupation={occupation}
+                          occupation={{
+                            id: occupation.id,
+                            name: occupation.name,
+                            registeredUsers: occupation.registeredUsers,
+                            note: occupation.note,
+                          }}
+                          onEditConfirm={handleEditConfirm}
+                          onDeleteConfirm={handleDeleteConfirm}
                         />
                       ))}
                     </tbody>
@@ -141,7 +208,7 @@ const Occupations: React.FC = () => {
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  onPageChange={handlePageChange}
+                  onPageChange={setCurrentPage}
                 />
               </div>
             </div>
@@ -150,6 +217,4 @@ const Occupations: React.FC = () => {
       </>
     </React.Fragment>
   );
-};
-
-export default Occupations;
+}
