@@ -25,11 +25,11 @@ export class FetchOccupationUsecase {
     try {
       const response = await this.occupationsRepository.fetch();
       const occupations = response.data.results.map(
-        (industry: any) =>
+        (occupation: any) =>
           new OccupationItem({
-            id: industry.id,
-            name: industry.name,
-            note: industry.note,
+            id: occupation.id,
+            name: occupation.name,
+            note: occupation.note,
           })
       );
       return new FetchOccupationsOutput(occupations || []);
