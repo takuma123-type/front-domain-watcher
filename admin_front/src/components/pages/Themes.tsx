@@ -1,20 +1,24 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 import Header from "../molecules/shared/Header";
-import ThemesData from "../../data/Themes_data";
 import ThemeRow from "../molecules/themes/ThemeRow";
 import CreateButton from "../atoms/Buttons/CreateButton";
 import Pagination from "../organisms/shared/Pagination";
+import { ThemesRepository } from "../../infrastructure/repositories/ThemesRepository";
+import { FetchThemeUsecase } from "../../usecases/FetchThemesUsecase";
+import { ThemeItem } from "../../models/presentation/ThemeItem";
+import { UnauthorizedError } from "../../infrastructure/repositories/errors";
+import {
+  UpdateThemeUsecase,
+  UpdateThemeInput,
+} from "../../usecases/UpdateThemeUsecase";
+import {
+  DeleteThemeUsecase,
+  DeleteThemeInput,
+} from "../../usecases/DeleteThemeUsecase";
 
-interface Meta {
-  title: string;
-  meta: any[];
-  link: any[];
-  style: any[];
-  script: any[];
-}
-
-const meta: Meta = {
+const meta = {
   title: "",
   meta: [],
   link: [],
@@ -22,30 +26,87 @@ const meta: Meta = {
   script: [],
 };
 
-const Theme: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const themesPerPage = 5;
+export default function Themes() {
+  const navigate = useNavigate();
+  const [themes, setThemes] = useState<ThemeItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const themesPerPage: number = 10;
 
-  const memoizedThemesData = useMemo(() => {
-    return ThemesData.filter((theme) => theme.name.includes(searchQuery));
-  }, [searchQuery]);
+  const memoizedThemes: ThemeItem[] = useMemo(() => {
+    return themes.filter((theme) => theme.name.includes(searchQuery));
+  }, [themes, searchQuery]);
 
-  const indexOfLastTheme = currentPage * themesPerPage;
-  const indexOfFirstTheme = indexOfLastTheme - themesPerPage;
-  const currentThemes = memoizedThemesData.slice(
+  const indexOfLastTheme: number = currentPage * themesPerPage;
+  const indexOfFirstTheme: number = indexOfLastTheme - themesPerPage;
+  const currentThemes: ThemeItem[] = memoizedThemes.slice(
     indexOfFirstTheme,
     indexOfLastTheme
   );
-  const totalPages = Math.ceil(memoizedThemesData.length / themesPerPage);
+  const totalPages: number = Math.ceil(
+    memoizedThemes.length / themesPerPage
+  );
 
-  const handleSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+  const handleEditConfirm = async (
+    themeId: number,
+    updatedName: string
+  ) => {
+    const updatedTheme = new UpdateThemeInput({
+      id: themeId,
+      name: updatedName,
+    });
+    try {
+      const usecase = new UpdateThemeUsecase(
+        updatedTheme,
+        new ThemesRepository()
+      );
+      await usecase.update();
+      window.location.reload();
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        navigate(`/sign_in`);
+      }
+      console.error(error);
+    }
   };
 
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+  const handleDeleteConfirm = async (themeId: number) => {
+    const deletedTheme = new DeleteThemeInput({
+      id: themeId,
+    });
+    try {
+      const usecase = new DeleteThemeUsecase(
+        deletedTheme,
+        new ThemesRepository()
+      );
+      await usecase.delete();
+      window.location.reload();
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        navigate(`/sign_in`);
+      }
+      console.error(error);
+    }
   };
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const themesRepository = new ThemesRepository();
+        const fetchThemesUsecase = new FetchThemeUsecase(
+          themesRepository
+        );
+        const themes = await fetchThemesUsecase.fetch();
+        setThemes(themes.themes);
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          navigate(`/sign_in`);
+        }
+        console.error(error);
+      }
+    }
+    fetchData();
+  }, []);
 
   return (
     <React.Fragment>
@@ -67,7 +128,7 @@ const Theme: React.FC = () => {
                         type="text"
                         placeholder="テーマ検索"
                         value={searchQuery}
-                        onChange={handleSearchQueryChange}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                       />
                     </h3>
                   </div>
@@ -128,8 +189,18 @@ const Theme: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {currentThemes.map((theme) => (
-                        <ThemeRow key={theme.id} theme={theme} />
+                      {currentThemes.map((theme: ThemeItem) => (
+                        <ThemeRow
+                          key={theme.id}
+                          theme={{
+                            id: theme.id,
+                            name: theme.name,
+                            registeredUsers: theme.registeredUsers,
+                            note: theme.note,
+                          }}
+                          onEditConfirm={handleEditConfirm}
+                          onDeleteConfirm={handleDeleteConfirm}
+                        />
                       ))}
                     </tbody>
                   </table>
@@ -137,7 +208,7 @@ const Theme: React.FC = () => {
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  onPageChange={handlePageChange}
+                  onPageChange={setCurrentPage}
                 />
               </div>
             </div>
@@ -146,6 +217,4 @@ const Theme: React.FC = () => {
       </>
     </React.Fragment>
   );
-};
-
-export default Theme;
+}

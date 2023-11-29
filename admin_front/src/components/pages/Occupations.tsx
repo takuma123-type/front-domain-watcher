@@ -48,11 +48,11 @@ export default function Occupations() {
   );
 
   const handleEditConfirm = async (
-    industryId: number,
+    occupationId: number,
     updatedName: string
   ) => {
     const updatedOccupation = new UpdateOccupationInput({
-      id: industryId,
+      id: occupationId,
       name: updatedName,
     });
     try {

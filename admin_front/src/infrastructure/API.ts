@@ -23,6 +23,12 @@ export class API {
       `${this.BASE_PATH}/occupations/${params.occupationId}`,
     occupationDelete: (params: { occupationId: number }) =>
       `${this.BASE_PATH}/occupations/${params.occupationId}`,
+    themes: () => `${this.BASE_PATH}/themes`,
+    themeCreate: () => `${this.BASE_PATH}/themes`,
+    themeUpdate: (params: { themeId: number }) =>
+      `${this.BASE_PATH}/themes/${params.themeId}`,
+    themeDelete: (params: { themeId: number }) =>
+      `${this.BASE_PATH}/themes/${params.themeId}`,
     old_girls: () => `${this.BASE_PATH}/old_girls`,
     old_girl: (params: { userId: string }) =>
       `${this.BASE_PATH}/old_girls/${params.userId}`,

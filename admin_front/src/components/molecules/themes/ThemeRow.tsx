@@ -3,15 +3,17 @@ import DeleteModal from "../../organisms/shared/DeleteModal";
 import EditModal from "../../organisms/shared/EditModal";
 
 interface Theme {
+  id: number;
   name: string;
-  registrants: number;
+  registeredUsers: number;
+  note: string;
 }
 
-interface Props {
-  theme: Theme;
-}
-
-const ThemeRow = ({ theme }: Props) => {
+const ThemeRow: React.FC<{
+  theme: Theme
+  onDeleteConfirm: (id: number) => void;
+  onEditConfirm: (id: number, newName: string) => void;
+}> = ({ theme, onDeleteConfirm, onEditConfirm }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editValue, setEditValue] = useState(theme.name);
@@ -37,26 +39,28 @@ const ThemeRow = ({ theme }: Props) => {
     setIsEditModalVisible(false);
   };
 
-  const handleDeleteModalConfirm = (): void => {
-    setIsModalVisible(false);
-    console.log(`Delete ${theme.name}`);
+  const handleDeleteConfirm = async () => {
+    onDeleteConfirm(theme.id)
   };
 
-  const handleEditModalConfirm = (value: string) => {
-    setEditValue(value);
-    setIsEditModalVisible(false);
-    console.log(`Edit ${theme.name} to ${value}`);
+  const handleEditModalConfirm = async (value: string) => {
+    onEditConfirm(theme.id, value)
   };
 
   return (
     <tr>
       <td className="py-3 pr-4 whitespace-nowrap">
         <div className="flex flex-wrap items-center">
-          <span className="font-semibold">{editValue}</span>
+          <span
+            className="font-semibold cursor-pointer"
+            onClick={handleEditClick}
+          >
+            {editValue}
+          </span>
         </div>
       </td>
       <td className="py-3 pr-4">
-        <span className="font-medium">{theme.registrants}人</span>
+        <span className="font-medium">{theme.registeredUsers}人</span>
       </td>
       <td className="py-3 pr-4">
         <span
@@ -77,7 +81,7 @@ const ThemeRow = ({ theme }: Props) => {
       {isModalVisible && (
         <DeleteModal
           onCancel={handleModalCancel}
-          onConfirm={handleDeleteModalConfirm}
+          onConfirm={handleDeleteConfirm}
           initialValue={editValue}
           deleteTarget={`${theme.name}`}
           isVisible={isModalVisible}
