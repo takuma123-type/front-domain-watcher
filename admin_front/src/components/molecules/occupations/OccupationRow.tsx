@@ -5,46 +5,46 @@ import EditModal from "../../organisms/shared/EditModal";
 interface Occupation {
   id: number;
   name: string;
-  registrants: number;
+  registeredUsers: number;
+  note: string;
 }
 
-interface OccupationRowProps {
-  occupation: Occupation;
-}
+const OccupationRow: React.FC<{
+  occupation: Occupation
+  onDeleteConfirm: (id: number) => void;
+  onEditConfirm: (id: number, newName: string) => void;
+}> = ({ occupation, onDeleteConfirm, onEditConfirm }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editValue, setEditValue] = useState(occupation.name);
 
-const OccupationRow: React.FC<OccupationRowProps> = ({ occupation }) => {
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [isEditModalVisible, setIsEditModalVisible] = useState<boolean>(false);
-  const [editValue, setEditValue] = useState<string>(occupation.name);
-
-  const handleDeleteClick = (): void => {
+  const handleDeleteClick = () => {
     setIsModalVisible(true);
   };
 
-  const handleModalCancel = (): void => {
+  const handleModalCancel = () => {
     setIsModalVisible(false);
   };
 
-  const handleModalConfirm = (): void => {
+  const handleModalConfirm = () => {
     setIsModalVisible(false);
+    console.log(`Delete ${occupation.name}`);
   };
 
-  const handleEditClick = (): void => {
+  const handleEditClick = () => {
     setIsEditModalVisible(true);
   };
 
-  const handleEditModalCancel = (): void => {
+  const handleEditModalCancel = () => {
     setIsEditModalVisible(false);
   };
 
-  const handleEditModalConfirm = (value: string): void => {
-    setEditValue(value);
-    setIsEditModalVisible(false);
+  const handleDeleteConfirm = async () => {
+    onDeleteConfirm(occupation.id)
   };
 
-  const handleDeleteModalConfirm = (): void => {
-    setIsModalVisible(false);
-    console.log(`Delete ${occupation.name}`);
+  const handleEditModalConfirm = async (value: string) => {
+    onEditConfirm(occupation.id, value)
   };
 
   return (
@@ -60,7 +60,7 @@ const OccupationRow: React.FC<OccupationRowProps> = ({ occupation }) => {
         </div>
       </td>
       <td className="py-3 pr-4">
-        <span className="font-medium">{occupation.registrants}人</span>
+        <span className="font-medium">{occupation.registeredUsers}人</span>
       </td>
       <td className="py-3 pr-4">
         <span
@@ -81,7 +81,7 @@ const OccupationRow: React.FC<OccupationRowProps> = ({ occupation }) => {
       {isModalVisible && (
         <DeleteModal
           onCancel={handleModalCancel}
-          onConfirm={handleDeleteModalConfirm}
+          onConfirm={handleDeleteConfirm}
           initialValue={editValue}
           deleteTarget={`${occupation.name}`}
           isVisible={isModalVisible}
