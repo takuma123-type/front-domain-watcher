@@ -1,17 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import Header from "../molecules/shared/Header";
-import Pagination from "../organisms/shared/Pagination";
-import TableHeader from "../molecules/users/TableHeader";
-import TableRow from "../molecules/users/TableRow";
-import { UsersRepository } from "../../infrastructure/repositories/UsersRepository";
-import {
-  FetchUsersUsecase,
-  FetchUsersOutput,
-} from "../../usecases/FetchUsersUsecase";
-import { UserItem } from "../../models/presentation/UserItem";
-import { UnauthorizedError } from "../../infrastructure/repositories/errors";
+import { ChatRepository } from "../../infrastructure/repositories/ChatRepository";
+import { Header } from "../molecules/Header";
 
 const meta = {
   title: "",
@@ -21,112 +11,106 @@ const meta = {
   script: [],
 };
 
-export default function Users() {
-  const navigate = useNavigate();
-  const handleCellClick = async (userId: number) => {
-    navigate(`/users/${userId}`);
+interface ChatMessage {
+  prompt: string;
+  response: string;
+}
+
+export default function Index() {
+  const [prompt, setPrompt] = useState("");
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const handleSend = async () => {
+    if (loading || prompt.trim() === "") return;
+
+    const newMessage: ChatMessage = { prompt, response: "" };
+    setChatHistory([...chatHistory, newMessage]);
+    setPrompt("");
+    setLoading(true);
+    setError(null);
+
+    const chatRepo = new ChatRepository();
+    try {
+      const data = await chatRepo.post(prompt);
+      const updatedMessage: ChatMessage = { ...newMessage, response: data.response };
+      setChatHistory((prev) => prev.map((msg, index) => index === prev.length - 1 ? updatedMessage : msg));
+    } catch (error) {
+      console.error("Error:", error);
+      setError("メッセージの送信中にエラーが発生しました。もう一度お試しください。");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-
-  const [searchQuery, setSearchQuery] = useState<string>("");
-
-  const [filteredUsers, setFilteredUsers] = useState<UserItem[]>([]);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const [currentUsers, setCurrentUsers] = useState<UserItem[]>([]);
-
-  const [users, setUsers] = useState<UserItem[]>([]);
-
   useEffect(() => {
-    const usersRepository = new UsersRepository();
-    const fetchUsersUsecase = new FetchUsersUsecase(usersRepository);
-    const fetchUsers = async () => {
-      try {
-        const output: FetchUsersOutput = await fetchUsersUsecase.fetch();
-        const usersCell = output.users;
-        setUsers(usersCell);
-      } catch (error) {
-        if (error instanceof UnauthorizedError) {
-          console.log('UnauthorizedError')
-          navigate(`/sign_in`);
-        }
-      }
-    };
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    const filteredCell = users.filter((user) =>
-      `${user.name}`.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredUsers(filteredCell);
-    setTotalPages(Math.ceil(filteredCell.length / itemsPerPage));
-    setCurrentPage(1);
-  }, [users, searchQuery, itemsPerPage]);
-
-  useEffect(() => {
-    const offset = (currentPage - 1) * itemsPerPage;
-    const currentCell = filteredUsers.slice(offset, offset + itemsPerPage);
-    setCurrentUsers(currentCell);
-  }, [filteredUsers, currentPage, itemsPerPage]);
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatHistory, loading]);
 
   return (
     <React.Fragment>
       <HelmetProvider>
         <Helmet {...meta}></Helmet>
       </HelmetProvider>
-      <>
-        <Header />
-        <section className="py-4 overflow-hidden">
-          <div className="container px-4 mx-auto">
-            <div className="py-5 bg-neutral-50 border border-neutral-100 rounded-xl">
-              <div className="px-6">
-                <h3 className="font-heading pb-8 text-lg text-neutral-600 font-semibold">
-                  ユーザ一覧
-                  <input
-                    className="pl-2 py-3 text-sm text-gray-200 border ml-2.5"
-                    type="text"
-                    placeholder="ユーザ検索"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </h3>
-                <div className="mb-5 w-full overflow-x-auto">
-                  <table className="w-full min-w-max table-auto">
-                    <thead>
-                      <tr className="text-left">
-                        <TableHeader label="Id" />
-                        <TableHeader label="ユーザコード" />
-                        <TableHeader label="性 / 名" />
-                        <TableHeader label="属性" />
-                        <TableHeader label="メールアドレス" />
-                        <th className="pb-3.5 border-b border-neutral-100" />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentUsers.map((user) => (
-                        <TableRow
-                          key={user.id}
-                          {...user}
-                          onCellClick={(id, code, name, email) =>
-                            handleCellClick(id)
-                          }
-                        />
-                      ))}
-                    </tbody>
-                  </table>
+      <Header />
+      <div className="flex flex-col h-screen bg-gray-100 pt-16">
+        <div className="flex flex-col flex-grow p-4 overflow-auto">
+          {chatHistory.map((chat, index) => (
+            <div key={index} className="mb-4">
+              <div className="flex justify-end items-end">
+                <div className="bg-green-400 text-white p-3 rounded-xl shadow-md max-w-xs">
+                  {chat.prompt}
                 </div>
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
+                <img
+                  src="/images/shomajirou.png"
+                  alt="User"
+                  className="w-10 h-10 rounded-full ml-2"
                 />
               </div>
+              {chat.response && (
+                <div className="flex justify-start items-start mt-2">
+                  <img
+                    src="/images/アウラdot.png"
+                    alt="Partner"
+                    className="w-10 h-10 rounded-full mr-2"
+                  />
+                  <div className="bg-gray-300 text-black p-3 rounded-xl shadow-md max-w-xs">
+                    {chat.response}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        </section>
-      </>
+          ))}
+          {loading && (
+            <div className="flex justify-center items-center">
+              <div className="loader border-t-4 border-green-400 rounded-full w-8 h-8 animate-spin"></div>
+            </div>
+          )}
+          {error && (
+            <div className="text-red-500 text-center mt-4">
+              {error}
+            </div>
+          )}
+          <div ref={chatEndRef}></div>
+        </div>
+        <div className="p-4 bg-white flex items-center border-t border-gray-200">
+          <textarea
+            className="flex-grow p-2 border rounded-lg mr-2"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="メッセージを入力してください"
+          />
+          <button
+            className={`bg-green-400 text-white p-2 rounded-lg ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            onClick={handleSend}
+            disabled={loading}
+          >
+            送信
+          </button>
+        </div>
+      </div>
     </React.Fragment>
   );
 }

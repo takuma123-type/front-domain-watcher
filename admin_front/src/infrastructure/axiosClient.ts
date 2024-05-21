@@ -1,5 +1,4 @@
 import axios from "axios";
-import { API } from "./API";
 import { UnauthorizedError} from "./repositories/errors";
 
 export const axiosClient  = axios.create()
