@@ -1,4 +1,4 @@
-# ア○ラボット
+# domain watch
 
 ## Project setup
 
