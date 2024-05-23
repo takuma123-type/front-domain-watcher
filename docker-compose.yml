@@ -6,6 +6,6 @@ services:
     env_file: app/app.env
     volumes:
       - ./:/usr/src/app
-    command: sh -c 'cd app && PORT=8000 yarn start'
+    command: sh -c 'cd app && PORT=9000 yarn start'
     ports:
-      - "8000:8000"
+      - "9000:9000"

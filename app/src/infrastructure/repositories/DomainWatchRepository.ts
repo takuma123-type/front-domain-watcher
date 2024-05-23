@@ -3,13 +3,13 @@ import { axiosClient } from "../axiosClient";
 import axios from "axios";
 import { UnauthorizedError, UnknownError } from "./errors";
 
-export class ChatRepository {
-  async post(prompt: string): Promise<any> {
+export class DomainWatchRepository {
+  async get(domainName: string): Promise<any> {
     try {
-      const response = await axiosClient.post(
-        API.createURL(API.URL.chat()),
-        { prompt: prompt },
+      const response = await axiosClient.get(
+        API.createURL(API.URL.domainWatch()),
         {
+          params: { domainName: domainName },
           withCredentials: true,
           headers: {
             Accept: "application/json",

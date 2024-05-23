@@ -12,7 +12,7 @@ TailWind CSS を Build する方法
 
 ```
 docker compose exec node bash
-cd admin_front
+cd app
 npm run build
 ```
 
@@ -23,4 +23,3 @@ npm run build
 [トップ画面] http://localhost:8000/
 
 ```
-# react-api-chatgpt

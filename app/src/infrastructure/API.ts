@@ -3,7 +3,7 @@ import axios from "axios";
 export class API {
   private static BASE_PATH = "/api";
   public static URL = {
-    chat: () => `${this.BASE_PATH}/chat_gpt/chat`,
+    domainWatch: () => `${this.BASE_PATH}/domain_watch`,
   };
 
   public static createURL(url: string): string {

@@ -1,19 +1,38 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Helmet, HelmetProvider } from "react-helmet-async";
-import { ChatRepository } from "../../infrastructure/repositories/ChatRepository";
+import { DomainWatchRepository } from "../../infrastructure/repositories/DomainWatchRepository";
 import { Header } from "../molecules/Header";
 
-const meta = {
-  title: "",
-  meta: [],
-  link: [],
-  style: [],
-  script: [],
-};
+interface WhoisData {
+  domain_name: string;
+  registrar: string;
+  creation_date: string;
+  updated_date: string;
+  expiration_date: string;
+  status: string;
+  registrant: {
+    organization: string;
+    state: string;
+    country: string;
+    country_code: string;
+  };
+  administrative_contact: {
+    organization: string;
+    state: string;
+    country: string;
+    country_code: string;
+  };
+  technical_contact: {
+    organization: string;
+    state: string;
+    country: string;
+    country_code: string;
+  };
+  name_servers: string[];
+}
 
 interface ChatMessage {
   prompt: string;
-  response: string;
+  response: WhoisData | null;
 }
 
 export default function Index() {
@@ -26,17 +45,19 @@ export default function Index() {
   const handleSend = async () => {
     if (loading || prompt.trim() === "") return;
 
-    const newMessage: ChatMessage = { prompt, response: "" };
+    const newMessage: ChatMessage = { prompt, response: null };
     setChatHistory([...chatHistory, newMessage]);
     setPrompt("");
     setLoading(true);
     setError(null);
 
-    const chatRepo = new ChatRepository();
+    const chatRepo = new DomainWatchRepository();
     try {
-      const data = await chatRepo.post(prompt);
-      const updatedMessage: ChatMessage = { ...newMessage, response: data.response };
-      setChatHistory((prev) => prev.map((msg, index) => index === prev.length - 1 ? updatedMessage : msg));
+      const data = await chatRepo.get(prompt);
+      const updatedMessage: ChatMessage = { ...newMessage, response: data.whois_data };
+      setChatHistory((prev) =>
+        prev.map((msg, index) => (index === prev.length - 1 ? updatedMessage : msg))
+      );
     } catch (error) {
       console.error("Error:", error);
       setError("メッセージの送信中にエラーが発生しました。もう一度お試しください。");
@@ -50,67 +71,65 @@ export default function Index() {
   }, [chatHistory, loading]);
 
   return (
-    <React.Fragment>
-      <HelmetProvider>
-        <Helmet {...meta}></Helmet>
-      </HelmetProvider>
-      <Header />
-      <div className="flex flex-col h-screen bg-gray-100 pt-16">
-        <div className="flex flex-col flex-grow p-4 overflow-auto">
-          {chatHistory.map((chat, index) => (
-            <div key={index} className="mb-4">
-              <div className="flex justify-end items-end">
-                <div className="bg-green-400 text-white p-3 rounded-xl shadow-md max-w-xs">
-                  {chat.prompt}
-                </div>
-                <img
-                  src="/images/shomajirou.png"
-                  alt="User"
-                  className="w-10 h-10 rounded-full ml-2"
-                />
+    <>
+    <Header />
+    <div className="flex flex-col h-screen bg-gray-100 pt-16">
+      <div className="flex flex-col flex-grow p-4 overflow-auto">
+        {chatHistory.map((chat, index) => (
+          <div key={index} className="mb-4">
+            <div className="flex justify-end items-end">
+              <div className="bg-green-400 text-white p-3 rounded-xl shadow-md max-w-xs">
+                {chat.prompt}
               </div>
-              {chat.response && (
-                <div className="flex justify-start items-start mt-2">
-                  <img
-                    src="/images/アウラdot.png"
-                    alt="Partner"
-                    className="w-10 h-10 rounded-full mr-2"
-                  />
-                  <div className="bg-gray-300 text-black p-3 rounded-xl shadow-md max-w-xs">
-                    {chat.response}
-                  </div>
+            </div>
+            {chat.response && (
+              <div className="flex justify-start items-start mt-2">
+                <div className="bg-gray-300 text-black p-3 rounded-xl shadow-md max-w-xs">
+                  <p><strong>ドメイン名:</strong> {chat.response.domain_name}</p>
+                  <p><strong>レジストラ:</strong> {chat.response.registrar}</p>
+                  <p><strong>作成日:</strong> {chat.response.creation_date}</p>
+                  <p><strong>更新日:</strong> {chat.response.updated_date}</p>
+                  <p><strong>有効期限:</strong> {chat.response.expiration_date}</p>
+                  <p><strong>ステータス:</strong> {chat.response.status}</p>
+                  <p><strong>登録者:</strong> {chat.response.registrant.organization}, {chat.response.registrant.state}, {chat.response.registrant.country} ({chat.response.registrant.country_code})</p>
+                  <p><strong>管理連絡先:</strong> {chat.response.administrative_contact.organization}, {chat.response.administrative_contact.state}, {chat.response.administrative_contact.country} ({chat.response.administrative_contact.country_code})</p>
+                  <p><strong>技術連絡先:</strong> {chat.response.technical_contact.organization}, {chat.response.technical_contact.state}, {chat.response.technical_contact.country} ({chat.response.technical_contact.country_code})</p>
+                  <p><strong>ネームサーバー:</strong> {chat.response.name_servers.join(", ")}</p>
                 </div>
-              )}
-            </div>
-          ))}
-          {loading && (
-            <div className="flex justify-center items-center">
-              <div className="loader border-t-4 border-green-400 rounded-full w-8 h-8 animate-spin"></div>
-            </div>
-          )}
-          {error && (
-            <div className="text-red-500 text-center mt-4">
-              {error}
-            </div>
-          )}
-          <div ref={chatEndRef}></div>
-        </div>
-        <div className="p-4 bg-white flex items-center border-t border-gray-200">
-          <textarea
-            className="flex-grow p-2 border rounded-lg mr-2"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="メッセージを入力してください"
-          />
-          <button
-            className={`bg-green-400 text-white p-2 rounded-lg ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-            onClick={handleSend}
-            disabled={loading}
-          >
-            送信
-          </button>
-        </div>
+              </div>
+            )}
+          </div>
+        ))}
+        {loading && (
+          <div className="flex justify-center items-center">
+            <div className="loader border-t-4 border-green-400 rounded-full w-8 h-8 animate-spin"></div>
+          </div>
+        )}
+        {error && (
+          <div className="text-red-500 text-center mt-4">
+            {error}
+          </div>
+        )}
+        <div ref={chatEndRef}></div>
       </div>
-    </React.Fragment>
+      <div className="p-4 bg-white flex items-center border-t border-gray-200">
+        <textarea
+          className="flex-grow p-2 border rounded-lg mr-2"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="ドメイン名を入力してください"
+        />
+        <button
+          className={`bg-green-400 text-white p-2 rounded-lg ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          onClick={handleSend}
+          disabled={loading}
+        >
+          送信
+        </button>
+      </div>
+    </div>
+    </>
   );
 }
